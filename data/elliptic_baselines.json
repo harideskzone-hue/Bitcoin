@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Majority (always licit)",
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "pr_auc": 0.09760759384932566,
+    "roc_auc": 0.5,
+    "n_predicted_positive": 0,
+    "n_actual_positive": 4545,
+    "n_total": 46564
+  },
+  {
+    "name": "Heuristic (degree + flow)",
+    "precision": 0.00946094609460946,
+    "recall": 0.00946094609460946,
+    "f1": 0.00946094609460946,
+    "pr_auc": 0.07430444661792689,
+    "roc_auc": 0.4021490828013761,
+    "n_predicted_positive": 4545,
+    "n_actual_positive": 4545,
+    "n_total": 46564
+  }
+]
