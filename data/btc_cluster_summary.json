@@ -1,0 +1,21 @@
+{
+  "snapshot": "data/btc_snapshot_10k.parquet",
+  "n_transactions": 10000,
+  "n_addresses": 17660,
+  "n_input_addresses": 7963,
+  "n_output_addresses": 11947,
+  "n_clusters": 12942,
+  "n_singleton_clusters": 11642,
+  "n_multi_clusters": 1300,
+  "largest_cluster_size": 653,
+  "n_co_spend_merges": 3857,
+  "n_change_merges": 1013,
+  "train_seeds_total": 8,
+  "eval_seeds_total": 2,
+  "train_seeds_in_snapshot": 0,
+  "eval_seeds_in_snapshot": 0,
+  "label_distribution": {
+    "unknown": 17660
+  },
+  "leakage_check": "PASSED \u2014 eval seed clusters disjoint from train seed clusters"
+}
