@@ -41,7 +41,7 @@ N_SIGNALS     = 20           # frozen: exactly 20
 N_IP_CLUSTERS = 12           # IP_CLUSTER_01 … IP_CLUSTER_12
 PEER_COUNT_RANGE = (4, 64)
 
-DISCLAIMER = "Simulated/replayed demonstration data only. Not real network observations."
+DISCLAIMER = "⚠ SIMULATED DATA — NOT REAL NETWORK TELEMETRY. Simulated/replayed demonstration data only."
 
 # ── Snapshot time window (used to bound synthetic timestamps) ─────────────────
 # Fallback if snapshot not available: use a plausible window
