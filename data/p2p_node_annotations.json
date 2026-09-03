@@ -1,0 +1,202 @@
+{
+  "f5364a69d15debfd": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_03",
+      "timestamp": "2026-09-03T13:26:50Z",
+      "tx_hash": "SIM_05d6de1852f3aff618d652637ea66028",
+      "peer_count": 21,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "4c1d95f8b84b3cbb": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_03",
+      "timestamp": "2026-09-03T13:34:12Z",
+      "tx_hash": "SIM_5d886157166b868a69b3885463192963",
+      "peer_count": 25,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "dad7fbef690ef142": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_02",
+      "timestamp": "2026-09-03T13:16:56Z",
+      "tx_hash": "SIM_ad78a766e772deb4b0aa04628f4f0587",
+      "peer_count": 10,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "691810075746dad4": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_06",
+      "timestamp": "2026-09-03T13:33:09Z",
+      "tx_hash": "SIM_fba0d3c5ae94285fee27af233fc66dfa",
+      "peer_count": 20,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "52a47b6c0bdba271": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_01",
+      "timestamp": "2026-09-03T13:34:47Z",
+      "tx_hash": "SIM_e0d126100734c36e55138a130c777c2d",
+      "peer_count": 11,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "d028b3c82e8d0a84": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_07",
+      "timestamp": "2026-09-03T13:22:20Z",
+      "tx_hash": "SIM_65e9726d881d0217a560c3b4b41d8440",
+      "peer_count": 22,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "00416127ed39c8f5": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_11",
+      "timestamp": "2026-09-03T13:32:51Z",
+      "tx_hash": "SIM_3f4883d688d9e6feef2c73b4ebaca98b",
+      "peer_count": 16,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "caa033c303b6fe65": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_12",
+      "timestamp": "2026-09-03T13:04:44Z",
+      "tx_hash": "SIM_7491e0f4c9e8f1bfee601c4a104aa1db",
+      "peer_count": 46,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "847edd7bd62b1fff": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_04",
+      "timestamp": "2026-09-03T13:13:24Z",
+      "tx_hash": "SIM_9eac0a9f2bd4819d65aff8bc30f163c8",
+      "peer_count": 58,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "6064d501bc91e327": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_04",
+      "timestamp": "2026-09-03T13:17:13Z",
+      "tx_hash": "SIM_18aba253d10c85458983ab31f8920d52",
+      "peer_count": 21,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "875f4c8e2828f762": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_08",
+      "timestamp": "2026-09-03T13:18:49Z",
+      "tx_hash": "SIM_4b26a7562cf6819301d438bfe678d43f",
+      "peer_count": 27,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "164e3f992b0ba617": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_06",
+      "timestamp": "2026-09-03T13:30:50Z",
+      "tx_hash": "SIM_82db427e433a4f558747f74e1c1d7a3e",
+      "peer_count": 21,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "b1467d65effcbae8": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_12",
+      "timestamp": "2026-09-03T13:24:02Z",
+      "tx_hash": "SIM_dad906e96d14449289b2416a6aa30275",
+      "peer_count": 44,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "92fdf7ba8a1938fc": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_03",
+      "timestamp": "2026-09-03T13:43:55Z",
+      "tx_hash": "SIM_2692d7deeebf4e64e107cc5116199799",
+      "peer_count": 19,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "558e45a2f878bd09": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_03",
+      "timestamp": "2026-09-03T13:29:32Z",
+      "tx_hash": "SIM_b0d624b9fc46f30ea528d6a77eb46e1f",
+      "peer_count": 21,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "3c4da5ac6035dca3": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_11",
+      "timestamp": "2026-09-03T13:27:18Z",
+      "tx_hash": "SIM_6369d3dd448e42a05c51e7174f5bdd59",
+      "peer_count": 47,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "665cf5545996f170": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_06",
+      "timestamp": "2026-09-03T13:10:32Z",
+      "tx_hash": "SIM_7a765c49d0273b7a182939f32487ff1f",
+      "peer_count": 56,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "df8c77144fc54e8d": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_01",
+      "timestamp": "2026-09-03T13:25:16Z",
+      "tx_hash": "SIM_42230ca51b0cb9fc9e94ebe8acbfa50c",
+      "peer_count": 21,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "418cc3cc4e9d03bb": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_02",
+      "timestamp": "2026-09-03T13:27:22Z",
+      "tx_hash": "SIM_b4dae48e0c4b08fd5c2ba60ec2103f0e",
+      "peer_count": 60,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ],
+  "ab2be58c1f0860fa": [
+    {
+      "signal_source": "SIMULATED",
+      "ip_cluster_id": "IP_CLUSTER_12",
+      "timestamp": "2026-09-03T13:18:48Z",
+      "tx_hash": "SIM_6929c0c010a4bccd16937a9eb6114817",
+      "peer_count": 45,
+      "disclaimer": "Simulated/replayed demonstration data only. Not real network observations."
+    }
+  ]
+}

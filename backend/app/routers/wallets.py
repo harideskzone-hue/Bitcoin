@@ -7,21 +7,23 @@ Returns the complete risk profile including score, reasons, graph-derived
 features, cluster membership, and simulated P2P signals (always null until P0.7).
 """
 
+import json
 from pathlib import Path
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 
-from backend.app.schemas import WalletDetailResponse
+from backend.app.schemas import P2PSignal, WalletDetailResponse
 from backend.constants import SCORE_DISCLAIMER, score_to_label
 
 router = APIRouter(prefix="/api/v1", tags=["wallets"])
 
-_RISK_SCORES_PATH = Path("data/btc_risk_scores.parquet")
-_FEATURES_PATH    = Path("data/address_features_10k.parquet")
-_CLUSTERS_PATH    = Path("data/btc_clusters.parquet")
-_REASONS_PATH     = Path("data/btc_reasons.parquet")
-_CHANGE_ADDR_PATH = Path("data/btc_change_candidates.parquet")  # written by P0.4.3
+_RISK_SCORES_PATH  = Path("data/btc_risk_scores.parquet")
+_FEATURES_PATH     = Path("data/address_features_10k.parquet")
+_CLUSTERS_PATH     = Path("data/btc_clusters.parquet")
+_REASONS_PATH      = Path("data/btc_reasons.parquet")
+_CHANGE_ADDR_PATH  = Path("data/btc_change_candidates.parquet")
+_P2P_ANNOTATIONS   = Path("data/p2p_node_annotations.json")
 
 
 def _load_table(path: Path, label: str) -> pd.DataFrame:
@@ -103,6 +105,23 @@ def get_wallet(address_hash: str) -> WalletDetailResponse:
     if _CHANGE_ADDR_PATH.exists():
         ca_df = pd.read_parquet(_CHANGE_ADDR_PATH)
         candidate_change = address_hash in ca_df["address_hash"].values
+
+    # ── P2P signals (P0.7) ─────────────────────────────────────────────────────
+    p2p_signals = None
+    if _P2P_ANNOTATIONS.exists():
+        annotations = json.loads(_P2P_ANNOTATIONS.read_text())
+        raw_signals = annotations.get(address_hash)
+        if raw_signals:
+            p2p_signals = [
+                P2PSignal(
+                    signal_source="SIMULATED",
+                    ip_cluster_id=s["ip_cluster_id"],
+                    timestamp=s["timestamp"],
+                    tx_hash=s["tx_hash"],
+                    disclaimer="Simulated/replayed demonstration data only.",
+                )
+                for s in raw_signals
+            ]
 
     # ── Hops to nearest flagged ─────────────────────────────────────────────────
     # Computed by P0.6 Layer 1; placeholder None until explainability runs.
