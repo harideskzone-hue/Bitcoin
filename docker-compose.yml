@@ -1,0 +1,68 @@
+services:
+
+  # ── PostgreSQL 16 ──────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: sih26146_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${DB_NAME:-sih26146}
+      POSTGRES_USER:     ${DB_USER:-sih_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Run schema migrations on first boot
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-sih_user} -d ${DB_NAME:-sih26146}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── FastAPI backend ────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sih26146_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST:       db       # container name resolves inside Docker network
+      DB_PORT:       5432
+      DB_NAME:       ${DB_NAME:-sih26146}
+      DB_USER:       ${DB_USER:-sih_user}
+      DB_PASSWORD:   ${DB_PASSWORD:-changeme}
+      OFFLINE_MODE:  ${OFFLINE_MODE:-true}
+      DEBUG:         ${DEBUG:-false}
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount data folder so offline parquet files are accessible inside container
+      - ./data:/app/data:ro
+      - ./ml:/app/ml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  # ── React + Vite frontend ──────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sih26146_frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+
+volumes:
+  pgdata:

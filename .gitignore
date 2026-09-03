@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment secrets — NEVER commit these
+.env
+*.env
+secrets/
+service_account*.json
+
+# Data files (large — tracked via Git LFS or excluded entirely)
+data/*.parquet
+data/*.pt
+data/*.csv
+data/*.pkl
+ml/checkpoints/*.pt
+ml/checkpoints/*.pkl
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# macOS
+.DS_Store
+
+# Docker
+.docker/
