@@ -1,0 +1,172 @@
+{
+  "evaluation_split": "test (steps 42\u201349)",
+  "test_prevalence": 0.04614862572107228,
+  "noskill_prauc_ref": 0.04614862572107228,
+  "comparison_table": [
+    {
+      "model": "Majority (always licit)",
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "pr_auc": 0.04614862572107228,
+      "roc_auc": 0.5,
+      "n_predicted_positive": 0,
+      "n_actual_positive": 408,
+      "n_total": 8841,
+      "prevalence": 0.04614862572107228
+    },
+    {
+      "model": "Heuristic (degree+flow)",
+      "precision": 0.007352941176470588,
+      "recall": 0.007352941176470588,
+      "f1": 0.007352941176470588,
+      "pr_auc": 0.037536936737600154,
+      "roc_auc": 0.43418988311558465,
+      "n_predicted_positive": 408,
+      "n_actual_positive": 408,
+      "n_total": 8841,
+      "prevalence": 0.04614862572107228
+    },
+    {
+      "model": "GCN (2-layer, hidden=128)",
+      "precision": 0.06006006006006006,
+      "recall": 0.9803921568627451,
+      "f1": 0.11318619128466327,
+      "pr_auc": 0.10870999067689223,
+      "roc_auc": 0.7725999981398939,
+      "n_predicted_positive": 6660,
+      "n_actual_positive": 408,
+      "n_total": 8841,
+      "prevalence": 0.04614862572107228
+    },
+    {
+      "model": "GraphSAGE (2-layer, mean)",
+      "precision": 0.08260184559981994,
+      "recall": 0.8995098039215687,
+      "f1": 0.1513090084518656,
+      "pr_auc": 0.3346607154521115,
+      "roc_auc": 0.8151974444467696,
+      "n_predicted_positive": 4443,
+      "n_actual_positive": 408,
+      "n_total": 8841,
+      "prevalence": 0.04614862572107228
+    }
+  ],
+  "calibration": {
+    "brier_before": 0.6232392787345119,
+    "brier_after": 0.04552245387284993,
+    "delta_brier": 0.577716824861662,
+    "prauc_before": 0.0678390554420605,
+    "prauc_after": 0.0685277698190938,
+    "calibrator_coef": 0.11561164264222198,
+    "calibrator_intercept": -2.5837544345481787,
+    "reliability_diagram_calibrated": [
+      {
+        "pred_prob": 0.0817010341669054,
+        "actual_frac": 0.047889410022216736
+      },
+      {
+        "pred_prob": 0.11760918029346552,
+        "actual_frac": 0.025899280575539568
+      },
+      {
+        "pred_prob": 0.22630218517400136,
+        "actual_frac": 0.0
+      },
+      {
+        "pred_prob": 0.30916626055087376,
+        "actual_frac": 0.25
+      },
+      {
+        "pred_prob": 0.4693157027698748,
+        "actual_frac": 0.0
+      },
+      {
+        "pred_prob": 0.5581446719671467,
+        "actual_frac": 1.0
+      },
+      {
+        "pred_prob": 0.8398631955434473,
+        "actual_frac": 0.0
+      }
+    ],
+    "note": "Calibration per P0.3.8 frozen spec: LR(C=1.0) fit on val logits, evaluated on test. GCN only \u2014 not applied to GraphSAGE or Bitcoin pipeline."
+  },
+  "checkpoint_verification": [
+    {
+      "model": "gcn_elliptic_v1",
+      "path": "models/gcn_elliptic_v1.pt",
+      "config": {
+        "in_channels": 165,
+        "hidden": 128,
+        "out_channels": 2,
+        "dropout": 0.5
+      },
+      "output_shape": [
+        203769,
+        2
+      ],
+      "all_finite": true,
+      "stored_metrics": {
+        "best_val_pr_auc": 0.261897331913655,
+        "test": {
+          "precision": 0.06006006006006006,
+          "recall": 0.9803921568627451,
+          "f1": 0.11318619128466327,
+          "pr_auc": 0.10870999067689223,
+          "roc_auc": 0.7725999981398939
+        },
+        "train_final": {
+          "precision": 0.26754832146490337,
+          "recall": 0.987579433853264,
+          "f1": 0.42103318761160025,
+          "pr_auc": 0.5511560851457407,
+          "roc_auc": 0.9363628428874268
+        }
+      }
+    },
+    {
+      "model": "sage_elliptic_v1",
+      "path": "models/sage_elliptic_v1.pt",
+      "config": {
+        "in_channels": 165,
+        "hidden": 128,
+        "out_channels": 2,
+        "dropout": 0.5,
+        "aggr": "mean"
+      },
+      "output_shape": [
+        203769,
+        2
+      ],
+      "all_finite": true,
+      "stored_metrics": {
+        "best_val_pr_auc": 0.6925336040539928,
+        "test": {
+          "precision": 0.08260184559981994,
+          "recall": 0.8995098039215687,
+          "f1": 0.1513090084518656,
+          "pr_auc": 0.3346607154521115,
+          "roc_auc": 0.8151974444467696,
+          "prevalence": 0.04614862572107228
+        },
+        "train_final": {
+          "precision": 0.3694813544792113,
+          "recall": 0.9959560947429231,
+          "f1": 0.5390026574957011,
+          "pr_auc": 0.8693135958195892,
+          "roc_auc": 0.9820919870422979,
+          "prevalence": 0.11580919248009634
+        }
+      }
+    }
+  ],
+  "notes": [
+    "All rows computed fresh on identical test mask and metric functions.",
+    "Threshold = 0.5 for Precision/Recall/F1 of GCN and GraphSAGE.",
+    "PR-AUC and ROC-AUC are threshold-independent ranking metrics.",
+    "No-skill PR-AUC reference = test-split illicit prevalence.",
+    "This is Elliptic methodology validation (Pipeline A) only.",
+    "Bitcoin risk ranking uses an independent 14-feature pipeline (Pipeline B)."
+  ]
+}
