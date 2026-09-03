@@ -51,47 +51,54 @@ log = logging.getLogger("weak_labels")
 SNAPSHOT_PATH = Path("data/btc_snapshot_10k.parquet")
 OUT_DIR       = Path("data")
 
-# ── Seed addresses ─────────────────────────────────────────────────────────────
-# Public domain: well-documented high-risk / blacklisted Bitcoin addresses.
-# These are used only for weak-label construction.
-# A subset is held out for evaluation (never seen during training).
+# ── Seed addresses (A/B/C/D/E split) ─────────────────────────────────────────
+# Frozen spec: A/B/C = training seeds (weak-label source)
+#              D     = validation seed (held out from training labels)
+#              E     = test seed       (held out from both training and validation)
 #
-# Sources: OFAC SDN list (public), Chainalysis published cluster labels (public),
-#          community-maintained abuse databases (Bitcoin Forum, forums.cypherpunks).
+# Leakage rule: D and E must never appear in training labels.
+# A/B/C addresses and their co-spend cluster members receive 'high_risk' labels.
+# D/E addresses and their cluster members receive 'eval_reference' labels.
 #
-# NOTE: Using a seed as a training label and as an evaluation reference is leakage.
-# The EVAL_SEEDS set is held out — it is used only to compute P@K / R@K / NDCG.
-TRAIN_SEEDS = {
-    # Hydra Marketplace cluster (OFAC sanctioned, 2022)
-    "12QtD5BFwRsdNsAZY76UVE1xyCGNTojH9h",
-    # Garantex exchange (OFAC sanctioned, 2022)
-    "3FupZp77ySr7jwoLYEJ9mwzJpvoNBXsBnE",
-    # Blender.io mixer (OFAC sanctioned, 2022)
-    "1BlenderiUQaY3tBLWwPxhFCJzMdBN8T2V",
-    # BitcoinFog mixer (DOJ indictment, 2021)
-    "1ASkqdo1hvydosVRc8MqtmHgbzTxb2R1ZD",
-    # Bitzlato (DOJ action, 2023)
-    "1BitzlatoNFGE5P2LiXLRN7R3Fm7mEEK5y",
-    # AlphaBay market (seized 2017, FBI)
-    "14KZsAdjJAFZbsHXBrb8VEMbFbVPdE7uS4",
-    # Silk Road 2 (seized 2014)
-    "1SiLkRoadnyc7Nv9TkMatHi9UvHJvXSyFu",
-    # WannaCry ransomware (known receiving address, FBI)
-    "115p7UMMngoj1pMvkpHijcRdfJNXj6LrLn",
+# Sources: OFAC SDN list (public), DOJ indictments (public),
+#          community-maintained abuse databases.
+
+# Group A — OFAC sanctioned exchanges/mixers (2022–2023)
+SEEDS_A = {
+    "12QtD5BFwRsdNsAZY76UVE1xyCGNTojH9h",  # Hydra Marketplace
+    "3FupZp77ySr7jwoLYEJ9mwzJpvoNBXsBnE",  # Garantex exchange
+    "1BlenderiUQaY3tBLWwPxhFCJzMdBN8T2V",  # Blender.io mixer
 }
 
-EVAL_SEEDS = {
-    # Held-out seeds: used ONLY for P@K / R@K / NDCG, never in training labels
-    # These must never appear in TRAIN_SEEDS
-    # Mt. Gox cold wallet (historically significant, known)
-    "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",
-    # BTC-e exchange (sanctioned)
-    "1BTC3HgJaGBiCqkN6r3CKE7PeDVtfHyQsc",
+# Group B — DOJ indictments (2021–2022)
+SEEDS_B = {
+    "1ASkqdo1hvydosVRc8MqtmHgbzTxb2R1ZD",  # BitcoinFog mixer
+    "1BitzlatoNFGE5P2LiXLRN7R3Fm7mEEK5y",  # Bitzlato
 }
 
-assert not (TRAIN_SEEDS & EVAL_SEEDS), "LEAKAGE: seed appears in both train and eval sets"
+# Group C — Seized darknet markets (2014–2017)
+SEEDS_C = {
+    "14KZsAdjJAFZbsHXBrb8VEMbFbVPdE7uS4",  # AlphaBay market
+    "1SiLkRoadnyc7Nv9TkMatHi9UvHJvXSyFu",  # Silk Road 2
+    "115p7UMMngoj1pMvkpHijcRdfJNXj6LrLn",  # WannaCry ransomware
+}
 
-ALL_SEEDS = TRAIN_SEEDS | EVAL_SEEDS
+# Group D — Validation seed (held out from training, used for val recall)
+SEEDS_D = {
+    "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF",  # Mt. Gox cold wallet (known, historical)
+}
+
+# Group E — Test seed (held out from both training and validation)
+SEEDS_E = {
+    "1BTC3HgJaGBiCqkN6r3CKE7PeDVtfHyQsc",  # BTC-e exchange (sanctioned)
+}
+
+# Derived convenience sets
+TRAIN_SEEDS = SEEDS_A | SEEDS_B | SEEDS_C   # used for 'high_risk' weak labels
+VAL_SEEDS   = SEEDS_D                        # 'eval_reference', val recall only
+TEST_SEEDS  = SEEDS_E                        # 'eval_reference', test recall only
+EVAL_SEEDS  = VAL_SEEDS | TEST_SEEDS         # never in training labels
+ALL_SEEDS   = TRAIN_SEEDS | EVAL_SEEDS
 
 
 # ── P0.4.2 — Union-Find ────────────────────────────────────────────────────────
@@ -300,15 +307,26 @@ def main():
     assert not leakage, f"LEAKAGE: clusters {leakage} appear in both train and eval seeds"
 
     # Assign weak labels
-    # train seed cluster → "high_risk" (weak positive)
-    # eval seed cluster  → "eval_reference" (held out, never used in training)
-    # all others         → "unknown"
+    # A/B/C cluster → "high_risk" (weak positive, used in training)
+    # D cluster     → "eval_reference_val" (held out, used for val recall only)
+    # E cluster     → "eval_reference_test" (held out, used for test recall only)
+    val_seed_clusters  = set()
+    test_seed_clusters = set()
+    for seed in VAL_SEEDS:
+        if seed in addr_to_cluster:
+            val_seed_clusters.add(addr_to_cluster[seed])
+    for seed in TEST_SEEDS:
+        if seed in addr_to_cluster:
+            test_seed_clusters.add(addr_to_cluster[seed])
+
     records = []
     for addr, cid in addr_to_cluster.items():
         if cid in train_seed_clusters:
             label = "high_risk"
-        elif cid in eval_seed_clusters:
-            label = "eval_reference"
+        elif cid in val_seed_clusters:
+            label = "eval_reference_val"
+        elif cid in test_seed_clusters:
+            label = "eval_reference_test"
         else:
             label = "unknown"
         records.append({"address": addr, "cluster_id": cid, "weak_label": label})
@@ -353,13 +371,24 @@ def main():
         "largest_cluster_size": int(cluster_sizes.max()),
         "n_co_spend_merges":  n_merges,
         "n_change_merges":    n_change,
+        "seed_split": {
+            "A": sorted(SEEDS_A),
+            "B": sorted(SEEDS_B),
+            "C": sorted(SEEDS_C),
+            "D": sorted(SEEDS_D),
+            "E": sorted(SEEDS_E),
+        },
         "train_seeds_total":  len(TRAIN_SEEDS),
-        "eval_seeds_total":   len(EVAL_SEEDS),
+        "val_seeds_total":    len(VAL_SEEDS),
+        "test_seeds_total":   len(TEST_SEEDS),
         "train_seeds_in_snapshot": len(
             [s for s in TRAIN_SEEDS if s in addr_to_cluster]
         ),
-        "eval_seeds_in_snapshot": len(
-            [s for s in EVAL_SEEDS if s in addr_to_cluster]
+        "val_seeds_in_snapshot": len(
+            [s for s in VAL_SEEDS if s in addr_to_cluster]
+        ),
+        "test_seeds_in_snapshot": len(
+            [s for s in TEST_SEEDS if s in addr_to_cluster]
         ),
         "label_distribution": label_counts.to_dict(),
         "leakage_check": "PASSED — eval seed clusters disjoint from train seed clusters",

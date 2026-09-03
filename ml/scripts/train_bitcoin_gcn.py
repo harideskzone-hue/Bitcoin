@@ -177,7 +177,7 @@ def load_bitcoin_graph(features_path: Path, graph_path: Path,
         lbl = labels_map.get(ah, "unknown")
         if lbl in ("flagged", "suspicious", "high_risk"):
             y_raw.append(1)
-        elif lbl in ("eval_reference",):
+        elif lbl in ("eval_reference", "eval_reference_val", "eval_reference_test"):
             y_raw.append(-1)
         else:
             y_raw.append(0)

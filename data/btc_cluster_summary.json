@@ -10,10 +10,34 @@
   "largest_cluster_size": 653,
   "n_co_spend_merges": 3857,
   "n_change_merges": 1013,
+  "seed_split": {
+    "A": [
+      "12QtD5BFwRsdNsAZY76UVE1xyCGNTojH9h",
+      "1BlenderiUQaY3tBLWwPxhFCJzMdBN8T2V",
+      "3FupZp77ySr7jwoLYEJ9mwzJpvoNBXsBnE"
+    ],
+    "B": [
+      "1ASkqdo1hvydosVRc8MqtmHgbzTxb2R1ZD",
+      "1BitzlatoNFGE5P2LiXLRN7R3Fm7mEEK5y"
+    ],
+    "C": [
+      "115p7UMMngoj1pMvkpHijcRdfJNXj6LrLn",
+      "14KZsAdjJAFZbsHXBrb8VEMbFbVPdE7uS4",
+      "1SiLkRoadnyc7Nv9TkMatHi9UvHJvXSyFu"
+    ],
+    "D": [
+      "1FeexV6bAHb8ybZjqQMjJrcCrHGW9sb6uF"
+    ],
+    "E": [
+      "1BTC3HgJaGBiCqkN6r3CKE7PeDVtfHyQsc"
+    ]
+  },
   "train_seeds_total": 8,
-  "eval_seeds_total": 2,
+  "val_seeds_total": 1,
+  "test_seeds_total": 1,
   "train_seeds_in_snapshot": 0,
-  "eval_seeds_in_snapshot": 0,
+  "val_seeds_in_snapshot": 0,
+  "test_seeds_in_snapshot": 0,
   "label_distribution": {
     "unknown": 17660
   },
