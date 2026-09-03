@@ -495,8 +495,9 @@ def build_pyg_heterodata(
     tx_to_idx = {t: i for i, t in enumerate(tx_nodes)}
 
     tx_feat_matrix = (
-        tx_meta.reindex(tx_nodes)[TX_FEATURE_COLS]
+        tx_meta
         .rename(columns={"input_count": "input_count_tx", "output_count": "output_count_tx"})
+        .reindex(tx_nodes)[TX_FEATURE_COLS]
         .values.astype(np.float32)
     )
     data["transaction"].x        = torch.tensor(tx_feat_matrix, dtype=torch.float)
