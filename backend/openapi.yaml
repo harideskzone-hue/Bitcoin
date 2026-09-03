@@ -1,0 +1,597 @@
+openapi: 3.1.0
+info:
+  title: SIH26146 — Bitcoin Risk Analysis API
+  description: AI-powered monitoring and analysis of Bitcoin transaction traffic.
+    Pipeline B (Bitcoin GCN) produces model-derived risk rankings (0–100) for address
+    prioritization. Scores are NOT calibrated probabilities and do not constitute
+    an enforcement or legal determination. Every response that contains a risk score
+    includes a score_disclaimer field.
+  version: 0.1.0
+paths:
+  /api/v1/health:
+    get:
+      tags:
+      - system
+      summary: API health check
+      description: Returns 200 when the API process is alive. Database connectivity
+        is checked separately via the db service health check.
+      operationId: health_check_api_v1_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/v1/model/info:
+    get:
+      tags:
+      - system
+      summary: Active model pipeline metadata
+      description: Returns metadata distinguishing Pipeline A (Elliptic, methodology
+        validation) from Pipeline B (Bitcoin GCN, risk ranking). The score_disclaimer
+        field must be displayed alongside any risk score in the UI.
+      operationId: model_info_api_v1_model_info_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelInfoResponse'
+  /api/v1/alerts:
+    get:
+      tags:
+      - alerts
+      summary: High-risk address alert feed
+      description: Returns addresses with risk_score >= min_risk, sorted descending.
+        Score is a model-derived ranking (0–100), NOT a calibrated probability. score_disclaimer
+        is always present in the response and must be displayed in the UI.
+      operationId: get_alerts_api_v1_alerts_get
+      parameters:
+      - name: min_risk
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 0
+          description: Minimum risk score (inclusive)
+          default: 70
+          title: Min Risk
+        description: Minimum risk score (inclusive)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Max results returned
+          default: 20
+          title: Limit
+        description: Max results returned
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/wallets/{address_hash}:
+    get:
+      tags:
+      - wallets
+      summary: Full risk profile for a single address
+      description: Returns model-derived risk score (0–100), risk label, up to 3 explanation
+        reasons, graph-derived feature values, co-spend cluster membership, and P2P
+        network signals (always null in demo mode). score_disclaimer is always present
+        and must be displayed in the UI.
+      operationId: get_wallet_api_v1_wallets__address_hash__get
+      parameters:
+      - name: address_hash
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Address Hash
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletDetailResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/graph:
+    get:
+      tags:
+      - graph
+      summary: Ego-graph around a focal address
+      description: 'Returns all nodes and edges within `depth` hops of the queried
+        address. Node types: ''address'' (has risk_score) or ''transaction'' (no risk_score).
+        Edge types: ''INPUT_TO'' (address → transaction), ''OUTPUT_TO'' (transaction
+        → address). Response is capped at 200 nodes for frontend rendering performance.'
+      operationId: get_graph_api_v1_graph_get
+      parameters:
+      - name: address
+        in: query
+        required: true
+        schema:
+          type: string
+          description: address_hash of the focal node
+          title: Address
+        description: address_hash of the focal node
+      - name: depth
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 2
+          minimum: 1
+          description: 'Hop depth: 1 or 2'
+          default: 1
+          title: Depth
+        description: 'Hop depth: 1 or 2'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AlertListResponse:
+      properties:
+        score_disclaimer:
+          type: string
+          title: Score Disclaimer
+          description: Hard-coded disclaimer that must accompany every risk score.
+            NOT a calibrated probability. For human review and prioritization only.
+          default: Model-derived risk ranking. For prioritization and human review
+            only. Not a calibrated probability.
+          examples:
+          - Model-derived risk ranking. For prioritization and human review only.
+            Not a calibrated probability.
+        alerts:
+          items:
+            $ref: '#/components/schemas/WalletAlert'
+          type: array
+          title: Alerts
+        total:
+          type: integer
+          title: Total
+          description: Total matching addresses (before limit)
+      type: object
+      required:
+      - alerts
+      - total
+      title: AlertListResponse
+      description: 'GET /api/v1/alerts
+
+
+        Returns addresses with risk_score ≥ min_risk, sorted descending.'
+    GraphEdge:
+      properties:
+        source:
+          type: string
+          title: Source
+        target:
+          type: string
+          title: Target
+        edge_type:
+          type: string
+          enum:
+          - INPUT_TO
+          - OUTPUT_TO
+          title: Edge Type
+        value_btc:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value Btc
+        timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Timestamp
+      type: object
+      required:
+      - source
+      - target
+      - edge_type
+      title: GraphEdge
+    GraphNode:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: address_hash or tx_hash
+        risk_score:
+          anyOf:
+          - type: integer
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Risk Score
+          description: null for transaction nodes
+        risk_label:
+          anyOf:
+          - type: string
+            enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+            - CRITICAL
+          - type: 'null'
+          title: Risk Label
+        node_type:
+          type: string
+          enum:
+          - address
+          - transaction
+          title: Node Type
+      type: object
+      required:
+      - id
+      - node_type
+      title: GraphNode
+    GraphResponse:
+      properties:
+        nodes:
+          items:
+            $ref: '#/components/schemas/GraphNode'
+          type: array
+          title: Nodes
+        edges:
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+          type: array
+          title: Edges
+        disclaimer:
+          type: string
+          title: Disclaimer
+          default: Model-derived risk ranking. For prioritization and human review
+            only. Not a calibrated probability.
+      type: object
+      required:
+      - nodes
+      - edges
+      title: GraphResponse
+      description: 'GET /api/v1/graph
+
+
+        Returns the ego-graph (up to `depth` hops) around the queried address.
+
+        Both address and transaction nodes are included.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          examples:
+          - ok
+        model_version:
+          type: string
+          title: Model Version
+          examples:
+          - gcn_btc_v1
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+          description: Timestamp of last model artifact write
+        offline_mode:
+          type: boolean
+          title: Offline Mode
+          description: True when running against local parquet snapshots instead of
+            BigQuery. Always True during the hackathon demo.
+      type: object
+      required:
+      - status
+      - model_version
+      - last_updated
+      - offline_mode
+      title: HealthResponse
+      description: 'GET /api/v1/health
+
+
+        Docker health-check endpoint. Returns 200 when the API process is alive.'
+    ModelInfoResponse:
+      properties:
+        model_version:
+          type: string
+          title: Model Version
+          examples:
+          - gcn_btc_v1
+        training_dataset:
+          type: string
+          title: Training Dataset
+          examples:
+          - Weak supervision on Bitcoin snapshot (co-spend seeds)
+        validation_dataset:
+          type: string
+          title: Validation Dataset
+          examples:
+          - Elliptic benchmark (methodology validation only)
+        inference_dataset:
+          type: string
+          title: Inference Dataset
+          examples:
+          - Bitcoin snapshot 50k txns, 2026-08-01 to 2026-09-01
+        model_status:
+          type: string
+          enum:
+          - demo
+          - production
+          - training
+          - unavailable
+          title: Model Status
+          description: '''demo'' means the model is running in demonstration mode
+            with weak-supervision labels. Not suitable for enforcement decisions.'
+        score_disclaimer:
+          type: string
+          title: Score Disclaimer
+          default: Model-derived risk ranking. For prioritization and human review
+            only. Not a calibrated probability.
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+      type: object
+      required:
+      - model_version
+      - training_dataset
+      - validation_dataset
+      - inference_dataset
+      - model_status
+      - last_updated
+      title: ModelInfoResponse
+      description: 'GET /api/v1/model/info
+
+
+        Returns metadata about the active inference pipeline.
+
+        Distinguishes Pipeline A (Elliptic, methodology validation) from
+
+        Pipeline B (Bitcoin GCN, risk ranking).'
+    P2PSignal:
+      properties:
+        signal_source:
+          type: string
+          enum:
+          - SIMULATED
+          const: SIMULATED
+          title: Signal Source
+          default: SIMULATED
+        ip_cluster_id:
+          type: string
+          title: Ip Cluster Id
+          examples:
+          - IP_CLUSTER_07
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        tx_hash:
+          type: string
+          title: Tx Hash
+          examples:
+          - a0b05f87c91a36014d07...
+        disclaimer:
+          type: string
+          enum:
+          - Simulated/replayed demonstration data only.
+          const: Simulated/replayed demonstration data only.
+          title: Disclaimer
+          default: Simulated/replayed demonstration data only.
+      type: object
+      required:
+      - ip_cluster_id
+      - timestamp
+      - tx_hash
+      title: P2PSignal
+      description: 'Simulated P2P network signal (P0.7).
+
+        signal_source is always ''SIMULATED'' — this is a demonstration artefact.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WalletAlert:
+      properties:
+        address:
+          type: string
+          title: Address
+          description: SHA-256[:16] address hash
+        risk_score:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Risk Score
+        risk_label:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - CRITICAL
+          title: Risk Label
+        top_reason:
+          type: string
+          title: Top Reason
+          description: Primary deterministic reason from Layer 1 explainability
+          examples:
+          - Within 2 hops of a flagged address
+        reasons:
+          items:
+            type: string
+          type: array
+          maxItems: 3
+          title: Reasons
+          description: Up to 3 explanation tokens (Layer 1 deterministic, Layer 2
+            optional)
+        cluster_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cluster Id
+          examples:
+          - CLUSTER_042
+        cluster_confidence:
+          anyOf:
+          - type: string
+            enum:
+            - HIGH
+            - MEDIUM
+            - LOW
+          - type: 'null'
+          title: Cluster Confidence
+      type: object
+      required:
+      - address
+      - risk_score
+      - risk_label
+      - top_reason
+      - reasons
+      title: WalletAlert
+      description: 'Single high-risk address record returned in /alerts.
+
+        Used inside AlertListResponse.'
+    WalletDetailResponse:
+      properties:
+        score_disclaimer:
+          type: string
+          title: Score Disclaimer
+          description: Hard-coded disclaimer that must accompany every risk score.
+            NOT a calibrated probability. For human review and prioritization only.
+          default: Model-derived risk ranking. For prioritization and human review
+            only. Not a calibrated probability.
+          examples:
+          - Model-derived risk ranking. For prioritization and human review only.
+            Not a calibrated probability.
+        address:
+          type: string
+          title: Address
+        risk_score:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Risk Score
+        risk_label:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+          - CRITICAL
+          title: Risk Label
+        reasons:
+          items:
+            type: string
+          type: array
+          maxItems: 3
+          title: Reasons
+        hops_to_nearest_flagged:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Hops To Nearest Flagged
+          description: Shortest-path distance to nearest known-flagged cluster. null
+            when no flagged cluster is reachable within the snapshot.
+        tx_burst_score:
+          type: number
+          title: Tx Burst Score
+          description: Feature F11 from FEATURE_SPEC.md — ratio of tx count to active
+            hours.
+        timing_anomaly_score:
+          type: number
+          title: Timing Anomaly Score
+          description: Feature F12 — weekday vs weekend transaction ratio.
+        cluster_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cluster Id
+        cluster_confidence:
+          anyOf:
+          - type: string
+            enum:
+            - HIGH
+            - MEDIUM
+            - LOW
+          - type: 'null'
+          title: Cluster Confidence
+        candidate_change_address:
+          type: boolean
+          title: Candidate Change Address
+          description: True if this address was identified as a likely change-address
+            by the P0.4.3 heuristic (single-input, two-output, fresh address, smaller
+            output value). This is a heuristic inference, not a certainty.
+        p2p_signals:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/P2PSignal'
+            type: array
+          - type: 'null'
+          title: P2P Signals
+          description: Simulated P2P signals. Always null until P0.7 is implemented.
+      type: object
+      required:
+      - address
+      - risk_score
+      - risk_label
+      - reasons
+      - tx_burst_score
+      - timing_anomaly_score
+      - candidate_change_address
+      title: WalletDetailResponse
+      description: 'GET /api/v1/wallets/{address_hash}
+
+
+        Full risk profile for a single address.'

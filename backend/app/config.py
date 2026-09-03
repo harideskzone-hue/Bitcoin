@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     db_user:     str = "sih_user"
     db_password: str = "changeme"
 
+    # ── GCP ───────────────────────────────────────────────────────────────────
+    gcp_project: str = "visata-ai-505904"
+
     # ── API ───────────────────────────────────────────────────────────────────
     api_host:    str = "0.0.0.0"
     api_port:    int = 8000
@@ -32,6 +35,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",   # silently ignore unknown .env keys
     )
 
 

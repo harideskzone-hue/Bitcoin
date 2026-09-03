@@ -3,14 +3,23 @@ backend/app/main.py
 ===================
 FastAPI application entry point.
 
-Routers are registered here. For now, only /health is live.
-All other routers (wallets, alerts, model info) are added in later tasks.
+Routers registered:
+  health_router  — GET /api/v1/health, GET /api/v1/model/info
+  alerts_router  — GET /api/v1/alerts
+  wallets_router — GET /api/v1/wallets/{address_hash}
+  graph_router   — GET /api/v1/graph
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.config import get_settings
+from backend.app.routers import (
+    alerts_router,
+    graph_router,
+    health_router,
+    wallets_router,
+)
 
 settings = get_settings()
 
@@ -18,15 +27,19 @@ app = FastAPI(
     title="SIH26146 — Bitcoin Risk Analysis API",
     description=(
         "AI-powered monitoring and analysis of Bitcoin transaction traffic. "
-        "Pipeline B produces model-derived risk rankings (0–100) for address "
-        "prioritization. Scores are NOT calibrated probabilities."
+        "Pipeline B (Bitcoin GCN) produces model-derived risk rankings (0–100) "
+        "for address prioritization. "
+        "Scores are NOT calibrated probabilities and do not constitute "
+        "an enforcement or legal determination. "
+        "Every response that contains a risk score includes a score_disclaimer field."
     ),
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
-# Allow the React frontend (running on :5173) to call this API
+# ── CORS ──────────────────────────────────────────────────────────────────────
+# Allow the React frontend (running on :5173 in dev) to call this API.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:3000"],
@@ -35,12 +48,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/health", tags=["system"])
-def health_check():
-    """
-    Docker health check endpoint.
-    Returns 200 when the API process is alive.
-    Database connectivity is checked separately via the db service health check.
-    """
-    return {"status": "ok", "offline_mode": settings.offline_mode}
+# ── Routers ───────────────────────────────────────────────────────────────────
+app.include_router(health_router)
+app.include_router(alerts_router)
+app.include_router(wallets_router)
+app.include_router(graph_router)
