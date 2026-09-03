@@ -81,8 +81,16 @@ TX_FEATURE_COLS = [
 # ── BigQuery pull ──────────────────────────────────────────────────────────────
 
 BIGQUERY_SQL = """
+WITH sampled_txs AS (
+    SELECT `hash`, block_timestamp, fee, input_count, output_count,
+           input_value, output_value, is_coinbase
+    FROM `bigquery-public-data.crypto_bitcoin.transactions`
+    WHERE block_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
+      AND is_coinbase = FALSE
+    LIMIT {n_tx}
+)
 SELECT
-    t.hash                                     AS tx_hash,
+    t.`hash`                                   AS tx_hash,
     t.block_timestamp,
     COALESCE(t.fee, 0)                         AS fee_satoshi,
     t.input_count,
@@ -97,20 +105,17 @@ SELECT
     o.type                                     AS output_type,
     o.index                                    AS output_index
 FROM
-    `bigquery-public-data.crypto_bitcoin.transactions` t
+    sampled_txs t
 JOIN
     `bigquery-public-data.crypto_bitcoin.inputs`  i
-    ON i.transaction_hash = t.hash,
+    ON i.transaction_hash = t.`hash`,
     UNNEST(i.addresses) AS inp_addr
 JOIN
     `bigquery-public-data.crypto_bitcoin.outputs` o
-    ON o.transaction_hash = t.hash,
+    ON o.transaction_hash = t.`hash`,
     UNNEST(o.addresses) AS out_addr
 WHERE
-    t.block_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
-    AND t.is_coinbase = FALSE
-    AND o.type != 'nulldata'
-LIMIT {n_tx}
+    o.type != 'nulldata'
 """
 
 
@@ -122,8 +127,16 @@ def pull_from_bigquery(n_tx: int) -> pd.DataFrame:
         log.error("google-cloud-bigquery not installed. Run: pip install google-cloud-bigquery")
         sys.exit(1)
 
-    log.info(f"Pulling {n_tx:,} rows from BigQuery …")
-    client = bigquery.Client()
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    project = os.getenv("GCP_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")
+    if not project:
+        log.error("GCP_PROJECT not set in .env. Add: GCP_PROJECT=your-project-id")
+        sys.exit(1)
+
+    log.info(f"Pulling {n_tx:,} rows from BigQuery (project={project}) …")
+    client = bigquery.Client(project=project)
     query  = BIGQUERY_SQL.format(n_tx=n_tx)
     df     = client.query(query).to_dataframe()
     log.info(f"  → {len(df):,} rows received")
@@ -630,6 +643,17 @@ def main():
 
     # Ensure timestamp column is datetime
     df["block_timestamp"] = pd.to_datetime(df["block_timestamp"], utc=True)
+
+    # BigQuery returns NUMERIC columns as decimal.Decimal — cast to float64
+    # so all / SATOSHI divisions work correctly in feature engineering.
+    numeric_cols = [
+        "fee_satoshi", "total_input_sat", "total_output_sat",
+        "input_value_sat", "output_value_sat",
+    ]
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = df[col].astype("float64")
+
     snapshot_now = df["block_timestamp"].max()
     log.info(f"Snapshot time range: {df['block_timestamp'].min()} → {snapshot_now}")
 
