@@ -65,3 +65,16 @@ SCORE_DISCLAIMER = (
 # ── Pipeline identifiers ──────────────────────────────────────────────────────
 PIPELINE_ELLIPTIC = "elliptic_gcn_v1"   # Supervised, methodology validation
 PIPELINE_BITCOIN  = "bitcoin_gcn_v1"    # Weakly supervised, risk ranking only
+
+# ── Aliases (for backward compatibility and import ergonomics) ────────────────
+THRESHOLDS = RISK_LABEL_THRESHOLDS  # spec-required name in correction #28
+
+# ── Risk label colours ────────────────────────────────────────────────────────
+# These match the CSS design tokens in frontend/src/constants.ts.
+# Both must be updated together if colours change.
+RISK_LABEL_COLOURS: dict[str, str] = {
+    "LOW":      "#22c55e",
+    "MEDIUM":   "#eab308",
+    "HIGH":     "#f97316",
+    "CRITICAL": "#ef4444",
+}

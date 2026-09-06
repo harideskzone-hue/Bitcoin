@@ -45,11 +45,13 @@ services:
       # Mount data folder so offline parquet files are accessible inside container
       - ./data:/app/data:ro
       - ./ml:/app/ml:ro
+      - ./models:/app/models:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fs http://localhost:8000/api/v1/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 6
+      start_period: 15s
 
   # ── React + Vite frontend ──────────────────────────────────────────────────
   frontend:
@@ -62,7 +64,13 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "5173:5173"
+      - "5174:5173"   # host 5174 → container 5173 (avoids conflict with SIH26187)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:5173/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 20s
 
 volumes:
   pgdata:

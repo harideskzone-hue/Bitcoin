@@ -60,15 +60,12 @@ def model_info() -> ModelInfoResponse:
     return ModelInfoResponse(
         model_version=PIPELINE_BITCOIN,
         training_dataset=(
-            "Weak supervision on Bitcoin snapshot (co-spend cluster seeds: "
-            "Hydra, Garantex, Blender, BitcoinFog, Bitzlato, AlphaBay, Silk Road 2, WannaCry)"
+            "Weak supervision on Bitcoin snapshot "
+            "(co-spend seeds: OFAC/sanctions list — demo data only)"
         ),
-        validation_dataset=(
-            "Elliptic benchmark — methodology validation only. "
-            "This result does NOT transfer directly to the Bitcoin pipeline."
-        ),
+        validation_dataset="Elliptic (methodology validation only)",
         inference_dataset=(
-            "Bitcoin snapshot — see /health last_updated for snapshot date."
+            "Bitcoin snapshot — see /api/v1/health last_updated for snapshot date."
         ),
         model_status="demo",
         score_disclaimer=SCORE_DISCLAIMER,

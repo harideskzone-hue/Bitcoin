@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react'
 import type { WalletAlert } from '../api'
 import { api } from '../api'
+import { DEFAULT_MIN_RISK } from '../constants'
 import { RiskBadge } from './RiskBadge'
 
 interface Props {
@@ -16,7 +17,7 @@ export function AlertList({ onSelect, selected }: Props) {
   const [disclaimer, setDisclaimer] = useState('')
   const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState<string | null>(null)
-  const [minRisk, setMinRisk]       = useState(50)
+  const [minRisk, setMinRisk]       = useState(DEFAULT_MIN_RISK)
 
   useEffect(() => {
     setLoading(true)
