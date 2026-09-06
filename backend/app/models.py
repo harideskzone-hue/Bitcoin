@@ -12,8 +12,8 @@ Tables:
 
 import datetime
 from sqlalchemy import (
-    BigInteger, Boolean, DateTime, Enum, Float,
-    Integer, String, Text, func,
+    Boolean, DateTime, Enum, Integer,
+    String, Text, func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -40,7 +40,7 @@ class AddressCluster(Base):
     """
     __tablename__ = "address_clusters"
 
-    id:              Mapped[int]      = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id:              Mapped[int]      = mapped_column(Integer, primary_key=True, autoincrement=True)
     address_hash:    Mapped[str]      = mapped_column(String(128), nullable=False, index=True)
     cluster_id:      Mapped[str]      = mapped_column(String(64),  nullable=False, index=True)
     confidence:      Mapped[str]      = mapped_column(ClusterConfidence, nullable=False)
@@ -68,7 +68,7 @@ class NodeScore(Base):
     """
     __tablename__ = "node_scores"
 
-    id:           Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id:           Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     address_hash: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     risk_score:   Mapped[int] = mapped_column(Integer,  nullable=False)   # 0–100
     risk_label:   Mapped[str] = mapped_column(RiskLabel, nullable=False)  # LOW/MEDIUM/HIGH/CRITICAL
@@ -96,7 +96,7 @@ class NodeReason(Base):
     """
     __tablename__ = "node_reasons"
 
-    id:            Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id:            Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     address_hash:  Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     reason:        Mapped[str] = mapped_column(Text, nullable=False)
     rank:          Mapped[int] = mapped_column(Integer, nullable=False)  # 1 = primary, 2, 3
@@ -120,7 +120,7 @@ class AuditLog(Base):
     """
     __tablename__ = "audit_log"
 
-    id:            Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    id:            Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     queried_hash:  Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     endpoint:      Mapped[str] = mapped_column(String(128), nullable=False)
     # Investigator identity — placeholder for Phase 2 MFA integration
