@@ -177,6 +177,7 @@ class WalletDetailResponse(ScoreCarrier):
     risk_score:           int  = Field(..., ge=0, le=100)
     risk_label:           Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
     reasons:              list[str] = Field(..., max_length=3)
+    score_type:           str = Field("heuristic_fallback", description="'raw_ranking' (GCN) or 'heuristic_fallback'")
 
     # Graph-derived features (from P0.2.2 / FEATURE_SPEC.md)
     hops_to_nearest_flagged:  Optional[int]   = Field(
@@ -209,6 +210,16 @@ class WalletDetailResponse(ScoreCarrier):
     p2p_signals: Optional[list[P2PSignal]] = Field(
         None,
         description="Simulated P2P signals. Always null until P0.7 is implemented.",
+    )
+
+    # Temporal risk profile (Track 4 — hour-of-day analysis)
+    temporal_profile: Optional[dict] = Field(
+        None,
+        description=(
+            "Hour-of-day transaction activity profile. Keys: "
+            "avg_time_between_tx_hrs, tx_burst_score, weekday_vs_weekend_ratio, "
+            "avg_tx_value_btc, total_sent_btc, tx_count, is_offhours_active."
+        ),
     )
 
 

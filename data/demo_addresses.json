@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "case": "A",
+      "label": "The Burst Address",
+      "address_hash": "17ebdd724dbfe21e",
+      "risk_score": 98,
+      "risk_label": "CRITICAL",
+      "narrative": "This address sent a high volume of transactions in a compressed time window during off-peak hours. The tx_burst_score places it in the 95th percentile of all addresses in the snapshot. Combined with sub-30-minute inter-transaction intervals, this is consistent with automated mixing or layering activity.",
+      "demo_walkthrough": "Search '17ebdd724dbfe21e' → CRITICAL badge → WalletDetail shows 'Extreme burst' + 'Rapid consecutive transactions' → GraphExplorer shows dense output fan-out"
+    },
+    {
+      "case": "B",
+      "label": "The Cluster Link",
+      "address_hash": "761d189d93e7bac2",
+      "risk_score": 68,
+      "risk_label": "HIGH",
+      "narrative": "This HIGH-scored address shares transaction burst patterns with Case A. Co-spend clustering links addresses that share transaction inputs — suggesting the same controlling entity. A human investigator would not catch this across thousands of addresses manually.",
+      "demo_walkthrough": "Click '761d189d93e7bac2' → GraphExplorer → expand 1 hop → shared transaction node connecting A and B → 'co-spend heuristic surfaces entity linkage automatically'"
+    },
+    {
+      "case": "C",
+      "label": "The P2P Node",
+      "address_hash": "558e45a2f878bd09",
+      "risk_score": 99,
+      "risk_label": "CRITICAL",
+      "narrative": "One of 20 addresses with P2P simulation signals. In production with legal authorization, this represents a network-level IP cluster correlation. The SIMULATED banner is always visible — judges cannot mistake simulation for real evidence.",
+      "demo_walkthrough": "Click '558e45a2f878bd09' → P2P panel → '⚠ SIMULATED DATA' banner → IP_CLUSTER_XX → 'Phase 2: real network telemetry with FIU-IND written authorization'"
+    }
+  ],
+  "demo_flow": {
+    "total_minutes": 5,
+    "segments": [
+      {"minute": "0:00-0:30", "action": "Opening hook — ₹936 crore PMLA freeze + FIU-IND mandate"},
+      {"minute": "0:30-1:30", "action": "Architecture — 2 pipelines, bipartite graph, weak supervision, fail-closed GCN"},
+      {"minute": "1:30-2:30", "action": "Case A — CRITICAL burst address, graph, reasons"},
+      {"minute": "2:30-3:30", "action": "Case B — entity linkage via co-spend clustering"},
+      {"minute": "3:30-4:30", "action": "Case C — P2P panel + Elliptic methodology table"},
+      {"minute": "4:30-5:00", "action": "Phase 2 FIU-IND pilot plan, close"}
+    ]
+  }
+}

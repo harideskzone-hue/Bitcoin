@@ -29,11 +29,26 @@ export interface P2PSignal {
   disclaimer: string
 }
 
+export interface TemporalProfile {
+  avg_time_between_tx_hrs: number
+  tx_burst_score: number
+  weekday_vs_weekend_ratio: number
+  avg_tx_value_btc: number
+  total_sent_btc: number
+  tx_count: number
+  is_offhours_active: boolean
+  velocity_label: string
+  velocity_risk: string
+  peak_hour_utc: number
+  hours_distribution: number[]
+}
+
 export interface WalletDetailResponse {
   address: string
   risk_score: number
   risk_label: RiskLabel
   reasons: string[]
+  score_type: string
   score_disclaimer: string
   hops_to_nearest_flagged: number | null
   tx_burst_score: number
@@ -42,6 +57,7 @@ export interface WalletDetailResponse {
   cluster_confidence: string | null
   candidate_change_address: boolean
   p2p_signals: P2PSignal[] | null
+  temporal_profile: TemporalProfile | null
 }
 
 export interface GraphNode {
