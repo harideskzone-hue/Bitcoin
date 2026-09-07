@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-06T11:53:21.330788+00:00",
-  "total_duration_s": 8.82,
+  "generated_at": "2026-09-07T16:36:20.569457+00:00",
+  "total_duration_s": 10.61,
   "snapshot": "10k (30-minute window)",
   "gcn_status": "fail-closed \u2014 zero positive seeds (expected)",
   "stages": [
@@ -8,31 +8,31 @@
       "stage": "1_snapshot",
       "result": "PASS",
       "detail": "Snapshot OK \u2014 10,000 transactions, ~17,660 unique addresses. Window: ~30 minutes of Bitcoin history.",
-      "duration_s": 0.85
+      "duration_s": 0.98
     },
     {
       "stage": "2_graph",
       "result": "PASS",
       "detail": "Graph OK \u2014 17,660 address nodes, 10,000 transaction nodes, 14 features per address. Edge types: INPUT_TO, OUTPUT_TO.",
-      "duration_s": 1.61
+      "duration_s": 1.78
     },
     {
       "stage": "3_weak_labels",
       "result": "PASS",
       "detail": "Weak labels built \u2014 17,660 addresses. Label distribution: {'unknown': 17660}. high_risk (training positives): 0.",
-      "duration_s": 2.8
+      "duration_s": 2.68
     },
     {
       "stage": "4_gcn_training",
       "result": "EXPECTED_FAIL",
       "detail": "GCN fail-closed correctly (exit 1). Reason: 10k snapshot covers ~30 minutes of Bitcoin history \u2014 no known seed addresses (Hydra, Garantex, etc.) transacted in that window. Training positives: 0. The frozen spec prohibits falling back to UNKNOWN-majority training. Resolution: run the 50k snapshot after BigQuery quota resets.",
-      "duration_s": 3.12
+      "duration_s": 2.58
     },
     {
       "stage": "5_explainability_L1",
       "result": "PASS",
       "detail": "Layer 1 deterministic rules ran on 17,660 addresses. Addresses with \u22651 reason: 17,660. Sample: [('76a3c8e09315\u2026', ['Unusual transaction volume burst (off-hours)']), ('c3cefc1138f9\u2026', ['Unusual transaction volume burst (off-hours)']), ('52fbda5c0a62\u2026', ['Unusual transaction volume burst (off-hours)'])]. Note: hops_to_flagged and cluster rules require seed coverage (available after 50k snapshot).",
-      "duration_s": 0.13
+      "duration_s": 0.15
     },
     {
       "stage": "6_p2p_simulation",
@@ -44,7 +44,7 @@
       "stage": "7_api_readiness",
       "result": "PASS",
       "detail": "API OK \u2014 5 routes registered: ['/api/v1/alerts', '/api/v1/graph', '/api/v1/health', '/api/v1/model/info', '/api/v1/wallets/{address_hash}']. OpenAPI spec: backend/openapi.yaml. Mock server: npx @stoplight/prism-cli mock backend/openapi.yaml",
-      "duration_s": 0.27
+      "duration_s": 2.41
     }
   ],
   "summary": {
