@@ -178,7 +178,7 @@ def find_change_candidates(df: pd.DataFrame) -> set:
     subset = df[df["tx_hash"].isin(one_in_two_out)].copy()
     subset["output_value_sat"] = subset["output_value_sat"].astype("float64")
 
-    for tx_hash, grp in subset.groupby("tx_hash"):
+    for _tx_hash, grp in subset.groupby("tx_hash"):
         input_addr  = grp["input_address"].iloc[0]
         output_rows = grp.drop_duplicates(subset=["output_address"])
 
@@ -249,7 +249,7 @@ def main():
     # Merge co-spending inputs
     n_merges = 0
     inp_groups = df.groupby("tx_hash")["input_address"].apply(list)
-    for tx_hash, addrs in inp_groups.items():
+    for _tx_hash, addrs in inp_groups.items():
         unique_addrs = list(set(addrs))
         if len(unique_addrs) >= 2:
             for i in range(1, len(unique_addrs)):
@@ -338,7 +338,6 @@ def main():
         log.info(f"    {lbl:20s}: {cnt:,} addresses ({100*cnt/len(labels_df):.2f}%)")
 
     n_high_risk = (labels_df["weak_label"] == "high_risk").sum()
-    n_unknown   = (labels_df["weak_label"] == "unknown").sum()
     log.info(f"\n  Positive label rate (high_risk): {100*n_high_risk/len(labels_df):.4f}%")
     log.info("  This is expected to be very low — most addresses are unlabeled.")
 

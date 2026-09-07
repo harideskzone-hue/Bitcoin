@@ -58,8 +58,8 @@ def stage(name: str, result: str, detail: str, duration_s: float = 0.0) -> dict:
     }
 
 
-def _run(cmd: list[str], cwd: str = ".") -> tuple[int, str, str]:
-    """Run subprocess, return (returncode, stdout, stderr)."""
+def _run(cmd: list[str], cwd: str = ".") -> tuple[int, str, str, float]:
+    """Run subprocess, return (returncode, stdout, stderr, elapsed)."""
     t0 = time.time()
     proc = subprocess.run(
         cmd, cwd=cwd,
@@ -127,7 +127,6 @@ def stage2_graph(results: list[dict]) -> None:
 
 def stage3_weak_labels(results: list[dict]) -> None:
     """Run build_weak_labels.py and check output."""
-    t0 = time.time()
     rc, out, err, elapsed = _run(
         [sys.executable, "ml/scripts/build_weak_labels.py"]
     )
@@ -152,7 +151,6 @@ def stage4_gcn(results: list[dict]) -> None:
     Attempt GCN training. Expect exit code 1 (fail-closed) on 10k snapshot.
     This is the correct and expected behaviour — not a pipeline error.
     """
-    t0 = time.time()
     rc, out, err, elapsed = _run(
         [sys.executable, "ml/scripts/train_bitcoin_gcn.py"]
     )
@@ -194,8 +192,7 @@ def stage5_explainability(results: list[dict]) -> None:
 
         from ml.explain.deterministic import GraphContext, explain_batch
 
-        feat_df   = pd.read_parquet("data/address_features_10k.parquet")
-        labels_df = pd.read_parquet("data/btc_weak_labels.parquet")
+        feat_df = pd.read_parquet("data/address_features_10k.parquet")
 
         # Minimal graph context (no flagged nodes on 10k — BFS produces empty hops_map)
         ctx = GraphContext(
@@ -241,7 +238,10 @@ def stage6_p2p(results: list[dict]) -> None:
     import re
     signals = json.loads(sig_path.read_text())
     n       = len(signals)
-    all_sim = all(s["signal_source"] == "SIMULATED" for s in signals)
+    if not all(s["signal_source"] == "SIMULATED" for s in signals):
+        results.append(stage("6_p2p_simulation", FAIL,
+                             "Non-simulated signals found in test data", time.time()-t0))
+        return
     payload = json.dumps(signals)
     ip_hits = re.findall(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', payload)
     clusters = sorted({s["ip_cluster_id"] for s in signals})
@@ -269,8 +269,8 @@ def stage7_api(results: list[dict]) -> None:
     try:
         from backend.app.main import app
         routes = [
-            r.path for r in app.routes
-            if hasattr(r, "methods") and "GET" in r.methods
+            getattr(r, "path", "") for r in app.routes
+            if hasattr(r, "methods") and "GET" in getattr(r, "methods", set())
         ]
         expected = {
             "/api/v1/health",

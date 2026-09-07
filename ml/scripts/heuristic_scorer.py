@@ -38,7 +38,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from backend.constants import score_to_label
+from backend.constants import score_to_label  # noqa: E402
 
 log = logging.getLogger("heuristic_scorer")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -80,7 +80,7 @@ def _compute_heuristic_scores(feat: pd.DataFrame) -> pd.DataFrame:
     if clusters.exists():
         cl_df = pd.read_parquet(clusters)
         addr_col = "address" if "address" in cl_df.columns else "address_hash"
-        for cid, grp in cl_df.groupby("cluster_id"):
+        for _cid, grp in cl_df.groupby("cluster_id"):
             addrs = set(grp[addr_col].tolist())
             if flagged_set & addrs:
                 # All members of this cluster are ≤1 hop from a flagged seed
@@ -170,10 +170,9 @@ def main() -> None:
 
     out = _compute_heuristic_scores(feat)
 
-    # Score distribution
-    from backend.constants import RISK_LABEL_THRESHOLDS
+    from backend.constants import RISK_LABEL_ORDER, RISK_LABEL_THRESHOLDS
     log.info("\n  Score distribution:")
-    for label in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+    for label in reversed(RISK_LABEL_ORDER):
         lo, hi = RISK_LABEL_THRESHOLDS[label]
         n = ((out["risk_score"] >= lo) & (out["risk_score"] <= hi)).sum()
         log.info(f"    {label:<10}: {n:>6} addresses  ({100*n/len(out):.1f}%)")

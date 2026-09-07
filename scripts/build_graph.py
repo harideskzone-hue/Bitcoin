@@ -528,11 +528,10 @@ def build_pyg_heterodata(
                 input_to_src.append(addr_to_idx[u])
                 input_to_dst.append(tx_to_idx[v])
                 input_to_w.append(d.get("value_btc", 0.0))
-        elif d.get("edge_type") == "OUTPUT_TO":
-            if u in tx_to_idx and v in addr_to_idx:
-                output_to_src.append(tx_to_idx[u])
-                output_to_dst.append(addr_to_idx[v])
-                output_to_w.append(d.get("value_btc", 0.0))
+        elif d.get("edge_type") == "OUTPUT_TO" and u in tx_to_idx and v in addr_to_idx:
+            output_to_src.append(tx_to_idx[u])
+            output_to_dst.append(addr_to_idx[v])
+            output_to_w.append(d.get("value_btc", 0.0))
 
     data["address", "INPUT_TO", "transaction"].edge_index = torch.tensor(
         [input_to_src, input_to_dst], dtype=torch.long

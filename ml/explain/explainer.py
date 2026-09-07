@@ -231,13 +231,16 @@ def main():
             tx_output   = pyg_data["transaction", "OUTPUT_TO", "address"].edge_index
             from collections import defaultdict as dd
             ti, to = dd(list), dd(list)
-            for a, t in addr_input.t().tolist(): ti[t].append(a)
-            for t, a in tx_output.t().tolist():  to[t].append(a)
+            for a, t in addr_input.t().tolist():
+                ti[t].append(a)
+            for t, a in tx_output.t().tolist():
+                to[t].append(a)
             src, dst = [], []
             for t in set(ti) & set(to):
                 for ai in ti[t]:
                     for ao in to[t]:
-                        src += [ai, ao]; dst += [ao, ai]
+                        src += [ai, ao]
+                        dst += [ao, ai]
             ei = torch.unique(torch.tensor([src, dst], dtype=torch.long), dim=1)
 
             from torch_geometric.data import Data

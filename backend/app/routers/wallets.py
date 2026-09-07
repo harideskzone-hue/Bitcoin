@@ -10,6 +10,7 @@ features, cluster membership, P2P signals, temporal profile, and score_type.
 
 import json
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,7 +20,7 @@ from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from backend.app.models import NodeReason, NodeScore
 from backend.app.schemas import P2PSignal, WalletDetailResponse
-from backend.constants import SCORE_DISCLAIMER, score_to_label
+from backend.constants import SCORE_DISCLAIMER, RiskTier, score_to_label
 
 router = APIRouter(prefix="/api/v1", tags=["wallets"])
 
@@ -32,7 +33,7 @@ _CHANGE_ADDR_PATH      = Path("data/btc_change_candidates.parquet")
 _P2P_ANNOTATIONS       = Path("data/p2p_node_annotations.json")
 
 
-def _get_score(address_hash: str, db: Session) -> tuple[int, str, str]:
+def _get_score(address_hash: str, db: Session) -> tuple[int, RiskTier, str] | tuple[None, None, None]:
     """Return (risk_score, risk_label, score_type). DB-first, parquet fallback."""
     # 1. DB
     row = db.query(NodeScore).filter_by(address_hash=address_hash).first()
@@ -119,11 +120,9 @@ def _build_temporal_profile(feats: dict) -> dict:
     import random
     rng = random.Random(hash(feats.get("tx_count", 0)) % 10000)
 
-    if is_offhours:
-        # Spike at night hours (0–6 UTC) — consistent with off-hours automation
-        peak_hour = rng.choice([1, 2, 3, 23, 0])
-    else:
-        peak_hour = rng.choice([10, 14, 15, 16])
+    peak_hour = (
+        rng.choice([1, 2, 3, 23, 0]) if is_offhours else rng.choice([10, 14, 15, 16])
+    )
 
     hours_dist = []
     for h in range(24):
@@ -156,7 +155,7 @@ def _build_temporal_profile(feats: dict) -> dict:
 def get_wallet(address_hash: str, db: Session = Depends(get_db)) -> WalletDetailResponse:
     # ── Score (DB-first) ─────────────────────────────────────────────────────
     risk_score, risk_label, score_type = _get_score(address_hash, db)
-    if risk_score is None:
+    if risk_score is None or risk_label is None or score_type is None:
         raise HTTPException(
             status_code=404,
             detail=f"Address '{address_hash}' not found. Run heuristic_scorer.py first.",
@@ -174,7 +173,8 @@ def get_wallet(address_hash: str, db: Session = Depends(get_db)) -> WalletDetail
     temporal_profile = _build_temporal_profile(feats) if feats else None
 
     # ── Cluster ───────────────────────────────────────────────────────────────
-    cluster_id = cluster_confidence = None
+    cluster_id: str | None = None
+    cluster_confidence: Literal["HIGH", "MEDIUM", "LOW"] | None = None
     if _CLUSTERS_PATH.exists():
         cl_df = pd.read_parquet(_CLUSTERS_PATH)
         addr_col = "address" if "address" in cl_df.columns else "address_hash"

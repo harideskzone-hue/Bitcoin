@@ -49,25 +49,25 @@ VAL_MAX   = 41
 LABEL_MAP = {"1": 1, "2": 0}   # illicit=1, licit=0, unknown→NaN
 
 
-def load_elliptic():
+def load_elliptic(elliptic_dir: Path | None = None):
     """Load all three Elliptic CSVs and merge into a single node DataFrame."""
     log.info("Loading Elliptic dataset …")
+    edir = elliptic_dir or ELLIPTIC_DIR
 
     # features: no header — col0=txId, col1=time_step, cols2-95=94 features
     features = pd.read_csv(
-        ELLIPTIC_DIR / "elliptic_txs_features.csv",
+        edir / "elliptic_txs_features.csv",
         header=None,
         dtype={0: int, 1: int},
     )
-    n_feat_cols = features.shape[1] - 2  # 94 = 167 - 2 - 71 (local + aggregate)
-    feat_cols   = [f"f{i}" for i in range(features.shape[1] - 2)]
+    feat_cols = [f"f{i}" for i in range(features.shape[1] - 2)]
     features.columns = ["txId", "time_step"] + feat_cols
     log.info(f"  Features: {features.shape}  ({len(feat_cols)} feature columns)")
 
-    classes = pd.read_csv(ELLIPTIC_DIR / "elliptic_txs_classes.csv")
+    classes = pd.read_csv(edir / "elliptic_txs_classes.csv")
     log.info(f"  Classes:  {classes.shape}")
 
-    edges = pd.read_csv(ELLIPTIC_DIR / "elliptic_txs_edgelist.csv")
+    edges = pd.read_csv(edir / "elliptic_txs_edgelist.csv")
     log.info(f"  Edges:    {edges.shape}")
 
     # Merge features + labels

@@ -212,7 +212,6 @@ def calibrate_gcn(gcn_model, data) -> dict:
     val_logits, val_labels = get_logits_and_labels(gcn_model, data, data.val_mask)
     # For Platt scaling: use the raw logit of the positive class (col 1)
     val_scores_raw = val_logits[:, 1].reshape(-1, 1)
-    val_probs_raw  = torch.sigmoid(torch.tensor(val_logits[:, 1])).numpy()
 
     calibrator = LogisticRegression(C=1.0, max_iter=1000, random_state=SEED)
     calibrator.fit(val_scores_raw, val_labels)
@@ -255,7 +254,7 @@ def calibrate_gcn(gcn_model, data) -> dict:
     )
 
     reliability_bins = []
-    for pred, actual in zip(mean_pred_cal, frac_pos_cal):
+    for pred, actual in zip(mean_pred_cal, frac_pos_cal, strict=False):
         log.info(f"  {pred:>12.4f}  {pred:>10.4f}  {actual:>10.4f}")
         reliability_bins.append({"pred_prob": float(pred), "actual_frac": float(actual)})
 
@@ -319,6 +318,56 @@ def verify_checkpoint(ckpt_path: Path, ModelClass, model_name: str,
         "output_shape": list(logits.shape),
         "all_finite":   True,
         "stored_metrics": ckpt["metrics"],
+    }
+
+
+def evaluate_all_models(
+    data,
+    split: dict | None = None,
+    gcn_ckpt_path: Path = GCN_CKPT,
+    sage_ckpt_path: Path = SAGE_CKPT,
+) -> dict:
+    """Evaluate all four models and return comparison report dict."""
+    gcn_ckpt  = torch.load(gcn_ckpt_path, weights_only=False)
+    gcn_cfg   = gcn_ckpt["config"]
+    gcn_model = EllipticGCN(gcn_cfg["in_channels"], gcn_cfg["hidden"],
+                             gcn_cfg["out_channels"], gcn_cfg["dropout"])
+    gcn_model.load_state_dict(gcn_ckpt["model_state_dict"])
+
+    sage_ckpt  = torch.load(sage_ckpt_path, weights_only=False)
+    sage_cfg   = sage_ckpt["config"]
+    sage_model = EllipticSAGE(sage_cfg["in_channels"], sage_cfg["hidden"],
+                               sage_cfg["out_channels"], sage_cfg["dropout"])
+    sage_model.load_state_dict(sage_ckpt["model_state_dict"])
+
+    rows = []
+    rows.append(("Majority (always licit)", evaluate_majority(data)))
+    rows.append(("Heuristic (degree+flow)", evaluate_heuristic(data)))
+    rows.append(("GCN (2-layer, hidden=128)", evaluate_model(gcn_model, data, data.test_mask)))
+    rows.append(("GraphSAGE (2-layer, mean)", evaluate_model(sage_model, data, data.test_mask)))
+
+    test_prevalence = data.y[data.test_mask].numpy().mean()
+    cal_results = calibrate_gcn(gcn_model, data)
+    ckpt_gcn  = verify_checkpoint(gcn_ckpt_path,  EllipticGCN,  "gcn_elliptic_v1",  data)
+    ckpt_sage = verify_checkpoint(sage_ckpt_path, EllipticSAGE, "sage_elliptic_v1", data)
+
+    return {
+        "evaluation_split": "test (steps 42–49)",
+        "test_prevalence":  float(test_prevalence),
+        "noskill_prauc_ref": float(test_prevalence),
+        "comparison_table": [
+            {"model": name, **m} for name, m in rows
+        ],
+        "calibration": cal_results,
+        "checkpoint_verification": [ckpt_gcn, ckpt_sage],
+        "notes": [
+            "All rows computed fresh on identical test mask and metric functions.",
+            "Threshold = 0.5 for Precision/Recall/F1 of GCN and GraphSAGE.",
+            "PR-AUC and ROC-AUC are threshold-independent ranking metrics.",
+            "No-skill PR-AUC reference = test-split illicit prevalence.",
+            "This is Elliptic methodology validation (Pipeline A) only.",
+            "Bitcoin risk ranking uses an independent 14-feature pipeline (Pipeline B).",
+        ],
     }
 
 

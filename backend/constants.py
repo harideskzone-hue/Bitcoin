@@ -18,17 +18,21 @@ See: SIH26146_Final_Backlog_v5.1_FROZEN.md — API contract, RISK_LABEL_THRESHOL
 # Final operational thresholds must be selected using investigator-reviewed
 # agency data in Phase 2.
 
-RISK_LABEL_THRESHOLDS: dict[str, tuple[int, int]] = {
+from typing import Literal
+
+RiskTier = Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
+RISK_LABEL_THRESHOLDS: dict[RiskTier, tuple[int, int]] = {
     "LOW":      (0,  24),   # informational; monitor
     "MEDIUM":   (25, 49),   # elevated; review when capacity allows
     "HIGH":     (50, 74),   # prioritised; review within 24h
     "CRITICAL": (75, 100),  # urgent; review immediately
 }
 
-RISK_LABEL_ORDER = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+RISK_LABEL_ORDER: list[RiskTier] = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 
 
-def score_to_label(risk_score: int) -> str:
+def score_to_label(risk_score: int) -> RiskTier:
     """
     Convert a 0–100 model-derived risk ranking to a presentation label.
 

@@ -172,9 +172,9 @@ def main() -> None:
     _print_ranked_list(scores_df, top_k=args.top_k)
 
     # ── Summary stats ────────────────────────────────────────────────────────
-    from backend.constants import RISK_LABEL_THRESHOLDS
+    from backend.constants import RISK_LABEL_ORDER, RISK_LABEL_THRESHOLDS
     print("  Score distribution:")
-    for label in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+    for label in reversed(RISK_LABEL_ORDER):
         lo, hi = RISK_LABEL_THRESHOLDS[label]
         n = ((scores_df["risk_score"] >= lo) & (scores_df["risk_score"] <= hi)).sum()
         pct = 100 * n / len(scores_df)

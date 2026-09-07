@@ -173,7 +173,7 @@ def check_finite(epoch: int, loss: torch.Tensor, model: EllipticGCN,
 # ── Training loop ──────────────────────────────────────────────────────────────
 
 def train(model: EllipticGCN, data, optimizer, class_weights: torch.Tensor,
-          train_mask: torch.Tensor) -> tuple[float, torch.Tensor]:
+          train_mask: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Single training step.
     Loss is computed ONLY on labeled training nodes (train_mask).

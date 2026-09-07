@@ -38,6 +38,7 @@ import logging
 import math
 import sys
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -116,7 +117,7 @@ def run_leakage_checks(labels_df: pd.DataFrame,
     """
     log.info("\n── P0.4.8 Seed-level leakage checks ──")
 
-    results = {}
+    results: dict[str, Any] = {}
 
     # ── Check 1: No eval_reference_* address has label 'high_risk' ─────────────
     eval_mask   = labels_df["weak_label"].isin(

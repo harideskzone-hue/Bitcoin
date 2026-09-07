@@ -30,6 +30,7 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
+from torch_geometric.data import Data
 
 logging.basicConfig(
     level=logging.INFO,
@@ -87,7 +88,7 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray,
 
 # ── P0.3.3 Majority-Class Baseline ─────────────────────────────────────────────
 
-def majority_baseline(data: "torch_geometric.data.Data") -> dict:
+def majority_baseline(data: Data) -> dict:
     """
     Always predict LICIT (0) for every labeled node.
 
@@ -116,7 +117,7 @@ def majority_baseline(data: "torch_geometric.data.Data") -> dict:
 
 # ── P0.3.4 Heuristic Baseline ──────────────────────────────────────────────────
 
-def heuristic_baseline(data: "torch_geometric.data.Data",
+def heuristic_baseline(data: Data,
                        nodes_df: pd.DataFrame,
                        edges_df: pd.DataFrame) -> dict:
     """

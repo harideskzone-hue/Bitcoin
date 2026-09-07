@@ -77,10 +77,10 @@ def get_graph(
     # ── BFS: collect nodes within `depth` hops ────────────────────────────────
     # Start from focal address node
     visited_addr = {focal_idx}
-    visited_tx   = set()
+    visited_tx: set[int] = set()
     frontier_addr = {focal_idx}
 
-    for hop in range(depth):
+    for _hop in range(depth):
         new_tx = set()
         # Expand: address → transaction (INPUT_TO)
         for a_idx, t_idx in input_edges.t().tolist():

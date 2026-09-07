@@ -207,8 +207,8 @@ def load_bitcoin_graph(features_path: Path, graph_path: Path,
         # Simpler: just use the two bipartite halves as a heterogeneous message-passing
         # proxy via a concatenated edge list. For a homogeneous GCN, we create
         # addr→addr edges: (input_addr, output_addr) for each tx.
-        tx_to_in  = {}  # tx_idx → list of input addr indices
-        tx_to_out = {}  # tx_idx → list of output addr indices
+        tx_to_in: dict[int, list[int]] = {}  # tx_idx → list of input addr indices
+        tx_to_out: dict[int, list[int]] = {}  # tx_idx → list of output addr indices
         for a, t in addr_input.t().tolist():
             tx_to_in.setdefault(t, []).append(a)
         for t, a in tx_output.t().tolist():
@@ -347,9 +347,12 @@ def build_risk_ranking(model, data, feat_df: pd.DataFrame) -> pd.DataFrame:
     risk_score = (probs * 100).clip(0, 100)
 
     def assign_tier(score):
-        if score >= TIER_THRESHOLDS["CRITICAL"]: return "CRITICAL"
-        if score >= TIER_THRESHOLDS["HIGH"]:     return "HIGH"
-        if score >= TIER_THRESHOLDS["MEDIUM"]:   return "MEDIUM"
+        if score >= TIER_THRESHOLDS["CRITICAL"]:
+            return "CRITICAL"
+        if score >= TIER_THRESHOLDS["HIGH"]:
+            return "HIGH"
+        if score >= TIER_THRESHOLDS["MEDIUM"]:
+            return "MEDIUM"
         return "LOW"
 
     risk_df = pd.DataFrame({
