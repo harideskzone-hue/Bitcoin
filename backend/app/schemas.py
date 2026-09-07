@@ -110,8 +110,9 @@ class P2PSignal(BaseModel):
     ip_cluster_id: str     = Field(..., examples=["IP_CLUSTER_07"])
     timestamp:     datetime
     tx_hash:       str     = Field(..., examples=["a0b05f87c91a36014d07..."])
-    disclaimer:    Literal["Simulated/replayed demonstration data only."] = (
-        "Simulated/replayed demonstration data only."
+    disclaimer:    str = Field(
+        default="Simulated/replayed demonstration data only.",
+        description="Must indicate SIMULATED status. Never a real network observation.",
     )
 
 

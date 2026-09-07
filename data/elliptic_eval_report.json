@@ -40,12 +40,12 @@
       "prevalence": 0.04614862572107228
     },
     {
-      "model": "GraphSAGE (2-layer, mean)",
-      "precision": 0.08260184559981994,
-      "recall": 0.8995098039215687,
-      "f1": 0.1513090084518656,
-      "pr_auc": 0.3346607154521115,
-      "roc_auc": 0.8151974444467696,
+      "model": "GraphSAGE v2 (cw=10)",
+      "precision": 0.10006648936170212,
+      "recall": 0.7377450980392157,
+      "f1": 0.1762295081967213,
+      "pr_auc": 0.3792723330140688,
+      "roc_auc": 0.8141111715645585,
       "n_predicted_positive": 4443,
       "n_actual_positive": 408,
       "n_total": 8841,
