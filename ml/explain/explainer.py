@@ -36,7 +36,6 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-import torch.nn.functional as F
 
 from ml.explain.deterministic import GraphContext, explain_batch
 from ml.explain.gnn_explainer import explain_top_k

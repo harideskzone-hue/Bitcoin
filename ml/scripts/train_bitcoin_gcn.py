@@ -56,10 +56,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.data import Data
 from torch_geometric.nn import GCNConv
-import torch.nn as nn
 
 logging.basicConfig(
     level=logging.INFO,
@@ -364,7 +364,7 @@ def build_risk_ranking(model, data, feat_df: pd.DataFrame) -> pd.DataFrame:
         cnt = tier_counts.get(tier, 0)
         log.info(f"  {tier:10s}: {cnt:,} addresses")
 
-    log.info(f"\nTop 10 highest-risk addresses:")
+    log.info("\nTop 10 highest-risk addresses:")
     top10 = risk_df.nlargest(10, "risk_score")[["address", "risk_score", "risk_tier"]]
     for _, row in top10.iterrows():
         log.info(f"  {row['address'][:40]:<42} score={row['risk_score']:5.1f}  {row['risk_tier']}")
@@ -441,7 +441,7 @@ def main():
     model.load_state_dict(best_state)
     risk_df = build_risk_ranking(model, data, feat_df)
     risk_df.to_parquet(OUT_DIR / "btc_risk_scores.parquet", index=False)
-    log.info(f"Risk scores saved → data/btc_risk_scores.parquet")
+    log.info("Risk scores saved → data/btc_risk_scores.parquet")
 
     # ── Save checkpoint ────────────────────────────────────────────────────────
     checkpoint = {

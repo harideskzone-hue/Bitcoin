@@ -18,7 +18,6 @@ Metrics reported (positive class = illicit = 1):
 
 import json
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -110,7 +109,7 @@ def majority_baseline(data: "torch_geometric.data.Data") -> dict:
 
     log.info(f"  Total labeled nodes : {len(y_true):,}")
     log.info(f"  Illicit in labeled  : {y_true.sum():,} ({100*y_true.mean():.1f}%)")
-    log.info(f"  Predicted positive  : 0  (always predicts licit)")
+    log.info("  Predicted positive  : 0  (always predicts licit)")
 
     return compute_metrics(y_true, y_pred, y_score, "Majority (always licit)")
 

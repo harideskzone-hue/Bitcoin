@@ -42,8 +42,8 @@ Usage
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Optional
 
 # ── Thresholds (all configurable) ─────────────────────────────────────────────
 HOPS_THRESHOLD    = 2      # Rule 1: max hops to nearest flagged cluster
@@ -67,17 +67,17 @@ class GraphContext:
 
     cluster_sizes: cluster_id → number of addresses in cluster.
     """
-    hops_map:         dict[str, Optional[int]] = field(default_factory=dict)
+    hops_map:         dict[str, int | None] = field(default_factory=dict)
     flagged_clusters: set[str]                 = field(default_factory=set)
     cluster_sizes:    dict[str, int]           = field(default_factory=dict)
 
 
 # ── Rule implementations ───────────────────────────────────────────────────────
 
-RuleFn = Callable[[dict, GraphContext], Optional[str]]
+RuleFn = Callable[[dict, GraphContext], str | None]
 
 
-def rule_hops_to_flagged(row: dict, ctx: GraphContext) -> Optional[str]:
+def rule_hops_to_flagged(row: dict, ctx: GraphContext) -> str | None:
     """
     Rule 1: Address is within HOPS_THRESHOLD hops of a flagged cluster.
     Hops are computed by BFS on the transaction-level graph
@@ -90,7 +90,7 @@ def rule_hops_to_flagged(row: dict, ctx: GraphContext) -> Optional[str]:
     return None
 
 
-def rule_tx_burst(row: dict, ctx: GraphContext) -> Optional[str]:
+def rule_tx_burst(row: dict, ctx: GraphContext) -> str | None:
     """
     Rule 2: Unusually high transaction rate relative to active hours.
     tx_burst_score = tx_count / max(1, active_hours) from FEATURE_SPEC.md F11.
@@ -101,7 +101,7 @@ def rule_tx_burst(row: dict, ctx: GraphContext) -> Optional[str]:
     return None
 
 
-def rule_address_reuse(row: dict, ctx: GraphContext) -> Optional[str]:
+def rule_address_reuse(row: dict, ctx: GraphContext) -> str | None:
     """
     Rule 3: Address appears as both sender and recipient across multiple transactions.
     High reuse can indicate a service address or deliberate layering.
@@ -114,7 +114,7 @@ def rule_address_reuse(row: dict, ctx: GraphContext) -> Optional[str]:
     return None
 
 
-def rule_cluster_flagged_member(row: dict, ctx: GraphContext) -> Optional[str]:
+def rule_cluster_flagged_member(row: dict, ctx: GraphContext) -> str | None:
     """
     Rule 4: Address belongs to a co-spend cluster that contains a known-bad seed.
     cluster_confidence == HIGH strengthens the co-spend heuristic
@@ -131,7 +131,7 @@ def rule_cluster_flagged_member(row: dict, ctx: GraphContext) -> Optional[str]:
     return None
 
 
-def rule_change_address(row: dict, ctx: GraphContext) -> Optional[str]:
+def rule_change_address(row: dict, ctx: GraphContext) -> str | None:
     """
     Rule 5: Address is a candidate change-address from P0.4.3 heuristic.
     (Single-input, two-output transaction; this address received the smaller
@@ -144,7 +144,7 @@ def rule_change_address(row: dict, ctx: GraphContext) -> Optional[str]:
     return None
 
 
-def rule_rapid_consecutive_tx(row: dict, ctx: GraphContext) -> Optional[str]:
+def rule_rapid_consecutive_tx(row: dict, ctx: GraphContext) -> str | None:
     """
     Rule 6: Average time between transactions is very short.
     avg_time_between_tx_hrs from FEATURE_SPEC.md F14.

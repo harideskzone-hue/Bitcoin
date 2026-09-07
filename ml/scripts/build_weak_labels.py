@@ -38,7 +38,6 @@ import json
 import logging
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 logging.basicConfig(
@@ -283,7 +282,7 @@ def main():
     log.info(f"  Singleton clusters (size=1): {(cluster_sizes==1).sum():,}")
     log.info(f"  Clusters with 2+ addresses : {(cluster_sizes>=2).sum():,}")
     log.info(f"  Largest cluster (addresses): {cluster_sizes.max():,}")
-    log.info(f"\n  Cluster size distribution:")
+    log.info("\n  Cluster size distribution:")
     for sz, cnt in cluster_sizes.value_counts().sort_index().head(8).items():
         log.info(f"    size={sz}: {cnt:,} clusters")
 
@@ -334,14 +333,14 @@ def main():
     labels_df = pd.DataFrame(records)
 
     label_counts = labels_df["weak_label"].value_counts()
-    log.info(f"\n  Weak label distribution:")
+    log.info("\n  Weak label distribution:")
     for lbl, cnt in label_counts.items():
         log.info(f"    {lbl:20s}: {cnt:,} addresses ({100*cnt/len(labels_df):.2f}%)")
 
     n_high_risk = (labels_df["weak_label"] == "high_risk").sum()
     n_unknown   = (labels_df["weak_label"] == "unknown").sum()
     log.info(f"\n  Positive label rate (high_risk): {100*n_high_risk/len(labels_df):.4f}%")
-    log.info(f"  This is expected to be very low — most addresses are unlabeled.")
+    log.info("  This is expected to be very low — most addresses are unlabeled.")
 
     if n_high_risk == 0:
         log.warning(
@@ -396,10 +395,10 @@ def main():
     with open(OUT_DIR / "btc_cluster_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 
-    log.info(f"\nOutputs saved:")
+    log.info("\nOutputs saved:")
     log.info(f"  data/btc_clusters.parquet       ({len(clusters_df):,} rows)")
     log.info(f"  data/btc_weak_labels.parquet    ({len(labels_df):,} rows)")
-    log.info(f"  data/btc_cluster_summary.json")
+    log.info("  data/btc_cluster_summary.json")
     log.info("\nP0.4.1 + P0.4.2 + P0.4.3 + P0.4.4 COMPLETE ✓")
 
 

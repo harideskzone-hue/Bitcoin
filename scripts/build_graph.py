@@ -128,6 +128,7 @@ def pull_from_bigquery(n_tx: int) -> pd.DataFrame:
         sys.exit(1)
 
     import os
+
     from dotenv import load_dotenv
     load_dotenv()
     project = os.getenv("GCP_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")

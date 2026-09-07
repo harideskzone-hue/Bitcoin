@@ -142,8 +142,9 @@ def main() -> None:
     else:
         print("  Running GCN inference …")
         import torch
-        from ml.models.bitcoin_gcn import BitcoinGCN
+
         from backend.constants import score_to_label
+        from ml.models.bitcoin_gcn import BitcoinGCN
 
         graph = torch.load(str(graph_path), weights_only=False)
         feat  = pd.read_parquet(feat_path)

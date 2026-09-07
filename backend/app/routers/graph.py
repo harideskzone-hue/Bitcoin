@@ -11,8 +11,8 @@ graph visualisation (P1.3).
 from pathlib import Path
 from typing import Annotated
 
-import torch
 import pandas as pd
+import torch
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.schemas import GraphEdge, GraphNode, GraphResponse

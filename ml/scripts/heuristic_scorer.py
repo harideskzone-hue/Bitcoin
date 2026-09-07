@@ -38,7 +38,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from backend.constants import score_to_label, SCORE_DISCLAIMER
+from backend.constants import score_to_label
 
 log = logging.getLogger("heuristic_scorer")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -180,7 +180,7 @@ def main() -> None:
 
     out.to_parquet(_OUT_PATH, index=False)
     log.info(f"\n  Written: {_OUT_PATH}")
-    log.info(f"  score_type: 'heuristic_fallback' (not 'raw_ranking')")
+    log.info("  score_type: 'heuristic_fallback' (not 'raw_ranking')")
     log.info("\n  NOTE: This score is explicitly a fallback, not a model prediction.")
     log.info("  The GCN replaces this when 50k seeds are available.")
     log.info("=" * 68)

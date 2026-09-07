@@ -10,7 +10,6 @@ features, cluster membership, P2P signals, temporal profile, and score_type.
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException
@@ -116,7 +115,8 @@ def _build_temporal_profile(feats: dict) -> dict:
 
     # Simulate hour-of-day distribution (based on burst + weekday_ratio features)
     # We don't have raw timestamps, so we derive a plausible distribution
-    import random, math
+    import math
+    import random
     rng = random.Random(hash(feats.get("tx_count", 0)) % 10000)
 
     if is_offhours:
@@ -207,7 +207,7 @@ def get_wallet(address_hash: str, db: Session = Depends(get_db)) -> WalletDetail
             ]
 
     # ── Hops to flagged (from heuristic scores file) ──────────────────────────
-    hops_to_flagged: Optional[int] = None
+    hops_to_flagged: int | None = None
     if _HEURISTIC_SCORES_PATH.exists():
         h_df = pd.read_parquet(_HEURISTIC_SCORES_PATH)
         h_row = h_df[h_df["address_hash"] == address_hash]

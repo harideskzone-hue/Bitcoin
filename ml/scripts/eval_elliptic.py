@@ -69,8 +69,8 @@ def _run_fresh_evaluation(split_path: Path) -> dict:
     split = json.loads(split_path.read_text())
 
     print("Loading Elliptic data …", flush=True)
-    from ml.scripts.prepare_elliptic   import load_elliptic
-    from ml.scripts.evaluate_elliptic  import evaluate_all_models
+    from ml.scripts.evaluate_elliptic import evaluate_all_models
+    from ml.scripts.prepare_elliptic import load_elliptic
 
     data = load_elliptic(_ELLIPTIC_DIR)
     report = evaluate_all_models(data, split, _GCN_CKPT, _SAGE_CKPT)
@@ -115,7 +115,7 @@ def main() -> None:
     # Calibration summary
     if "calibration" in report:
         cal = report["calibration"]
-        print(f"  Calibration (Platt scaling, Elliptic GCN only):")
+        print("  Calibration (Platt scaling, Elliptic GCN only):")
         print(f"    Brier score:  {cal['brier_before']:.4f} → {cal['brier_after']:.4f}  (Δ {cal['delta_brier']:.4f})")
         print()
 

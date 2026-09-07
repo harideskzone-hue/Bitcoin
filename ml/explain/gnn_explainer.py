@@ -39,12 +39,10 @@ Usage
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 import torch
-import torch.nn.functional as F
-from torch_geometric.explain import Explainer, GNNExplainer
 from torch_geometric.data import Data
+from torch_geometric.explain import Explainer, GNNExplainer
 
 log = logging.getLogger("gnn_explainer")
 

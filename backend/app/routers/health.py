@@ -5,7 +5,7 @@ GET /api/v1/health  —  Docker health-check endpoint
 GET /api/v1/model/info  —  Active pipeline metadata
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -23,8 +23,8 @@ _GCN_CKPT = Path("models/gcn_bitcoin_v1.pt")
 def _model_last_updated() -> datetime:
     """Return mtime of the GCN checkpoint, or epoch if not yet trained."""
     if _GCN_CKPT.exists():
-        return datetime.fromtimestamp(_GCN_CKPT.stat().st_mtime, tz=timezone.utc)
-    return datetime(2000, 1, 1, tzinfo=timezone.utc)
+        return datetime.fromtimestamp(_GCN_CKPT.stat().st_mtime, tz=UTC)
+    return datetime(2000, 1, 1, tzinfo=UTC)
 
 
 @router.get(

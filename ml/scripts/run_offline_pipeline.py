@@ -33,7 +33,7 @@ import json
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Ensure project root is on sys.path so `ml` and `backend` packages resolve
@@ -110,7 +110,8 @@ def stage2_graph(results: list[dict]) -> None:
         results.append(stage("2_graph", FAIL,
                              f"Missing artifacts: {missing}", time.time()-t0))
         return
-    import torch, pandas as pd
+    import pandas as pd
+    import torch
     g    = torch.load("data/graph_10k.pt", weights_only=False)
     feat = pd.read_parquet("data/address_features_10k.parquet")
     n_addr = g["address"].num_nodes
@@ -190,6 +191,7 @@ def stage5_explainability(results: list[dict]) -> None:
     t0 = time.time()
     try:
         import pandas as pd
+
         from ml.explain.deterministic import GraphContext, explain_batch
 
         feat_df   = pd.read_parquet("data/address_features_10k.parquet")
@@ -235,7 +237,8 @@ def stage6_p2p(results: list[dict]) -> None:
                              "P2P artifacts missing. Run generate_p2p_signals.py.", time.time()-t0))
         return
 
-    import re, json
+    import json
+    import re
     signals = json.loads(sig_path.read_text())
     n       = len(signals)
     all_sim = all(s["signal_source"] == "SIMULATED" for s in signals)
@@ -299,7 +302,7 @@ def print_report(stages: list[dict], total_s: float) -> None:
     print()
     print("=" * 70)
     print("  P0.8.1 — Offline Pipeline Dry Run Report")
-    print(f"  Generated: {datetime.now(tz=timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}")
+    print(f"  Generated: {datetime.now(tz=UTC).strftime('%Y-%m-%dT%H:%M:%SZ')}")
     print("=" * 70)
 
     for s in stages:
@@ -356,7 +359,7 @@ def main():
 
     # ── JSON report ────────────────────────────────────────────────────────────
     report = {
-        "generated_at":  datetime.now(tz=timezone.utc).isoformat(),
+        "generated_at":  datetime.now(tz=UTC).isoformat(),
         "total_duration_s": round(total_s, 2),
         "snapshot":      "10k (30-minute window)",
         "gcn_status":    "fail-closed — zero positive seeds (expected)",

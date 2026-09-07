@@ -24,7 +24,6 @@ Outputs:
 
 import json
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -96,7 +95,7 @@ def make_temporal_split(nodes: pd.DataFrame) -> dict:
     val   = labeled[(labeled["time_step"] > TRAIN_MAX) & (labeled["time_step"] <= VAL_MAX)]["txId"].tolist()
     test  = labeled[labeled["time_step"] > VAL_MAX]["txId"].tolist()
 
-    log.info(f"\nTemporal split (labeled nodes only):")
+    log.info("\nTemporal split (labeled nodes only):")
     log.info(f"  Train (steps 1–{TRAIN_MAX}):  {len(train):,} nodes")
     log.info(f"  Val   (steps {TRAIN_MAX+1}–{VAL_MAX}): {len(val):,} nodes")
     log.info(f"  Test  (steps {VAL_MAX+1}–49):  {len(test):,} nodes")
@@ -194,7 +193,7 @@ def build_pyg_data(nodes: pd.DataFrame, edges: pd.DataFrame, split: dict) -> Dat
     assert data.y.shape == (len(nodes),), \
         f"Label shape wrong: {data.y.shape}"
 
-    log.info(f"\n  PyG Data summary:")
+    log.info("\n  PyG Data summary:")
     log.info(f"    x.shape       = {data.x.shape}")
     log.info(f"    y.shape       = {data.y.shape}")
     log.info(f"    edge_index    = {data.edge_index.shape}")

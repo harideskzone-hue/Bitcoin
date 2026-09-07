@@ -33,7 +33,6 @@ Outputs:
 
 import json
 import logging
-import sys
 import time
 from pathlib import Path
 
@@ -229,7 +228,7 @@ def main():
         out_channels=2,
         dropout=DROPOUT,
     )
-    log.info(f"\nModel architecture:")
+    log.info("\nModel architecture:")
     log.info(f"  EllipticSAGE(in={in_channels}, hidden={HIDDEN_DIM}, "
              f"out=2, dropout={DROPOUT}, aggr=mean)")
     total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)

@@ -20,12 +20,11 @@ Outputs:
 
 import json
 import logging
-import sys
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.calibration import calibration_curve
 from sklearn.linear_model import LogisticRegression
@@ -38,7 +37,6 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 from torch_geometric.nn import GCNConv, SAGEConv
-import torch.nn as nn
 
 logging.basicConfig(
     level=logging.INFO,
@@ -309,7 +307,7 @@ def verify_checkpoint(ckpt_path: Path, ModelClass, model_name: str,
         f"Unexpected logit shape: {logits.shape}"
     assert torch.isfinite(logits).all(), "NaN/Inf in reloaded model output"
 
-    log.info(f"  ✓ Checkpoint reloaded successfully")
+    log.info("  ✓ Checkpoint reloaded successfully")
     log.info(f"  ✓ Config: {cfg}")
     log.info(f"  ✓ Output shape: {logits.shape}  (finite: True)")
     log.info(f"  ✓ Stored metrics: {ckpt['metrics']}")
@@ -413,8 +411,8 @@ def main():
     ckpt_sage = verify_checkpoint(SAGE_CKPT, EllipticSAGE, "sage_elliptic_v1", data)
 
     log.info("\n── P0.3.9 Summary ──")
-    log.info(f"  ✓ gcn_elliptic_v1.pt  — reloaded and verified")
-    log.info(f"  ✓ sage_elliptic_v1.pt — reloaded and verified")
+    log.info("  ✓ gcn_elliptic_v1.pt  — reloaded and verified")
+    log.info("  ✓ sage_elliptic_v1.pt — reloaded and verified")
 
     # ── Save report ────────────────────────────────────────────────────────────
     report = {

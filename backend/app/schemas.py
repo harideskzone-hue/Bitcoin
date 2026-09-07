@@ -20,12 +20,11 @@ Endpoint map:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
 from backend.constants import SCORE_DISCLAIMER
-
 
 # ── P0.4.7 — Disclaimer injected at schema level ──────────────────────────────
 # Any schema that returns risk_score must inherit ScoreCarrier or explicitly
@@ -134,8 +133,8 @@ class WalletAlert(BaseModel):
         max_length=3,
         description="Up to 3 explanation tokens (Layer 1 deterministic, Layer 2 optional)",
     )
-    cluster_id:         Optional[str]  = Field(None, examples=["CLUSTER_042"])
-    cluster_confidence: Optional[Literal["HIGH", "MEDIUM", "LOW"]] = None
+    cluster_id:         str | None  = Field(None, examples=["CLUSTER_042"])
+    cluster_confidence: Literal["HIGH", "MEDIUM", "LOW"] | None = None
 
 
 # ── Alerts ─────────────────────────────────────────────────────────────────────
@@ -181,7 +180,7 @@ class WalletDetailResponse(ScoreCarrier):
     score_type:           str = Field("heuristic_fallback", description="'raw_ranking' (GCN) or 'heuristic_fallback'")
 
     # Graph-derived features (from P0.2.2 / FEATURE_SPEC.md)
-    hops_to_nearest_flagged:  Optional[int]   = Field(
+    hops_to_nearest_flagged:  int | None   = Field(
         None,
         description="Shortest-path distance to nearest known-flagged cluster. "
                     "null when no flagged cluster is reachable within the snapshot.",
@@ -196,8 +195,8 @@ class WalletDetailResponse(ScoreCarrier):
     )
 
     # Co-spend cluster
-    cluster_id:           Optional[str]                          = None
-    cluster_confidence:   Optional[Literal["HIGH", "MEDIUM", "LOW"]] = None
+    cluster_id:           str | None                          = None
+    cluster_confidence:   Literal["HIGH", "MEDIUM", "LOW"] | None = None
     candidate_change_address: bool = Field(
         ...,
         description=(
@@ -208,13 +207,13 @@ class WalletDetailResponse(ScoreCarrier):
     )
 
     # P2P simulation data (P0.7)
-    p2p_signals: Optional[list[P2PSignal]] = Field(
+    p2p_signals: list[P2PSignal] | None = Field(
         None,
         description="Simulated P2P signals. Always null until P0.7 is implemented.",
     )
 
     # Temporal risk profile (Track 4 — hour-of-day analysis)
-    temporal_profile: Optional[dict] = Field(
+    temporal_profile: dict | None = Field(
         None,
         description=(
             "Hour-of-day transaction activity profile. Keys: "
@@ -228,9 +227,9 @@ class WalletDetailResponse(ScoreCarrier):
 
 class GraphNode(BaseModel):
     id:         str   = Field(..., description="address_hash or tx_hash")
-    risk_score: Optional[int]  = Field(None, ge=0, le=100,
+    risk_score: int | None  = Field(None, ge=0, le=100,
         description="null for transaction nodes")
-    risk_label: Optional[Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"]] = None
+    risk_label: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] | None = None
     node_type:  Literal["address", "transaction"]
 
 
@@ -238,8 +237,8 @@ class GraphEdge(BaseModel):
     source:     str
     target:     str
     edge_type:  Literal["INPUT_TO", "OUTPUT_TO"]
-    value_btc:  Optional[float] = None
-    timestamp:  Optional[datetime] = None
+    value_btc:  float | None = None
+    timestamp:  datetime | None = None
 
 
 class GraphQuery(BaseModel):

@@ -11,9 +11,15 @@ Tables:
 """
 
 import datetime
+
 from sqlalchemy import (
-    Boolean, DateTime, Enum, Integer,
-    String, Text, func,
+    Boolean,
+    DateTime,
+    Enum,
+    Integer,
+    String,
+    Text,
+    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 

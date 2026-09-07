@@ -146,8 +146,8 @@ def run_leakage_checks(labels_df: pd.DataFrame,
                        or "known" in c.lower() or "flag" in c.lower()]
     assert not suspicious_cols, \
         f"LEAKAGE: feature columns appear to encode seed identity: {suspicious_cols}"
-    log.info(f"  ✓ Check 2 PASSED: no feature encodes seed identity "
-             f"(address_hash is SHA-256[:16], not reversible)")
+    log.info("  ✓ Check 2 PASSED: no feature encodes seed identity "
+             "(address_hash is SHA-256[:16], not reversible)")
     results["check2_no_seed_identity_feature"] = "PASSED"
     results["feature_columns"] = feat_cols
 
@@ -157,7 +157,7 @@ def run_leakage_checks(labels_df: pd.DataFrame,
     n_val_ref = counts.get("eval_reference_val", 0)
     n_test_ref = counts.get("eval_reference_test", 0)
     n_unknown = counts.get("unknown", 0)
-    log.info(f"  Label counts:")
+    log.info("  Label counts:")
     log.info(f"    high_risk           : {n_train:,}  (training positives)")
     log.info(f"    eval_reference_val  : {n_val_ref:,}  (D seed cluster, val recall)")
     log.info(f"    eval_reference_test : {n_test_ref:,}  (E seed cluster, test recall)")
@@ -231,7 +231,7 @@ def run_ranking_evaluation(risk_df: pd.DataFrame,
     n_val  = (merged["weak_label"] == "eval_reference_val").sum()
     n_test = (merged["weak_label"] == "eval_reference_test").sum()
 
-    log.info(f"  Reference populations in risk score table:")
+    log.info("  Reference populations in risk score table:")
     log.info(f"    Seen (A/B/C high_risk):       {n_seen}")
     log.info(f"    Val  (D eval_reference_val):  {n_val}")
     log.info(f"    Test (E eval_reference_test): {n_test}")

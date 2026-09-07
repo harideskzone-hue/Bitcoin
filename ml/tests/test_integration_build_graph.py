@@ -28,10 +28,8 @@ That tests the isolated component in the projection.
 """
 
 import sys
-import tempfile
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -39,16 +37,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.build_graph import (
     ADDRESS_FEATURE_COLS,
-    TX_FEATURE_COLS,
     SATOSHI,
-    _hash_string,
+    TX_FEATURE_COLS,
     _compute_address_features,
     _compute_projection_features,
+    _hash_string,
     build_bipartite_and_projection,
     build_pyg_heterodata,
     validate_graph,
 )
-
 
 # ── Fixture ────────────────────────────────────────────────────────────────────
 
@@ -223,7 +220,6 @@ class TestProjectionGraph:
 
     def test_abc_triangle_in_projection(self, pipeline_output):
         """addr_A, addr_B, addr_C should form a triangle in the projection."""
-        import networkx as nx
         _, _, projection_G, _ = pipeline_output
         hA, hB, hC = _hash_string("addr_A"), _hash_string("addr_B"), _hash_string("addr_C")
         assert projection_G.has_edge(hA, hB), "Missing edge A-B in projection"
@@ -322,7 +318,6 @@ class TestPyGHeteroData:
 
     def test_edge_indices_in_range(self, pipeline_output):
         """No edge should reference a non-existent node."""
-        import torch
         pytest.importorskip("torch")
         *_, pyg = pipeline_output
         if pyg is None:

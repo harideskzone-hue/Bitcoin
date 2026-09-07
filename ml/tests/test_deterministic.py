@@ -27,7 +27,6 @@ from ml.explain.deterministic import (
     rule_tx_burst,
 )
 
-
 # ── Fixtures ───────────────────────────────────────────────────────────────────
 
 @pytest.fixture

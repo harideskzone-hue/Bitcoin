@@ -16,12 +16,9 @@ All expected values are hand-computed from the formulas in FEATURE_SPEC.md.
 """
 
 import sys
-import os
+from datetime import datetime
 from pathlib import Path
-from datetime import datetime, timezone
 
-import networkx as nx
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -29,12 +26,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.build_graph import (
+    SATOSHI,
     _compute_address_features,
     _compute_projection_features,
     _hash_string,
-    SATOSHI,
 )
-
 
 # ── Mini-graph fixture ─────────────────────────────────────────────────────────
 
@@ -356,7 +352,7 @@ class TestFeatureValidity:
 
     def test_is_script_hash_binary(self, features_with_proj):
         vals = features_with_proj["is_script_hash"].unique()
-        assert set(vals).issubset({0, 1, 0.0, 1.0})
+        assert set(vals).issubset({0, 1})
 
     def test_clustering_in_unit_interval(self, features_with_proj):
         cc = features_with_proj["clustering_coefficient"]

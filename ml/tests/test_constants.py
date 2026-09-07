@@ -10,14 +10,15 @@ These tests confirm:
   4. The SCORE_DISCLAIMER string is present and correct.
 """
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 # Make sure the project root is on the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from backend.constants import score_to_label, SCORE_DISCLAIMER, RISK_LABEL_THRESHOLDS
+from backend.constants import RISK_LABEL_THRESHOLDS, SCORE_DISCLAIMER, score_to_label
 
 
 class TestScoreToLabel:

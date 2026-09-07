@@ -25,7 +25,7 @@ Output:
 import hashlib
 import json
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -45,8 +45,8 @@ DISCLAIMER = "⚠ SIMULATED DATA — NOT REAL NETWORK TELEMETRY. Simulated/repla
 
 # ── Snapshot time window (used to bound synthetic timestamps) ─────────────────
 # Fallback if snapshot not available: use a plausible window
-DEFAULT_WINDOW_START = datetime(2026, 9, 3, 13, 10, 0, tzinfo=timezone.utc)
-DEFAULT_WINDOW_END   = datetime(2026, 9, 3, 13, 41, 0, tzinfo=timezone.utc)
+DEFAULT_WINDOW_START = datetime(2026, 9, 3, 13, 10, 0, tzinfo=UTC)
+DEFAULT_WINDOW_END   = datetime(2026, 9, 3, 13, 41, 0, tzinfo=UTC)
 
 
 def _load_address_hashes() -> list[str]:
@@ -205,11 +205,11 @@ def main():
     # ── Summary ────────────────────────────────────────────────────────────────
     cluster_ids = sorted({s["ip_cluster_id"] for s in signals})
     peer_counts  = [s["peer_count"] for s in signals]
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  IP clusters used  : {cluster_ids}")
     print(f"  Peer count range  : {min(peer_counts)} – {max(peer_counts)}")
     print(f"  Unique addresses  : {annotated_addresses}")
-    print(f"\nP0.7 COMPLETE ✓")
+    print("\nP0.7 COMPLETE ✓")
 
 
 if __name__ == "__main__":
