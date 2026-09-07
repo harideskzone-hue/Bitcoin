@@ -39,3 +39,9 @@ frontend/.env
 
 # Docker
 .docker/
+
+# Elliptic large features (>100MB)
+**/elliptic_txs_features.csv
+*.sqlite3-shm
+*.sqlite3-wal
+
