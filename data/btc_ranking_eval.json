@@ -1,0 +1,69 @@
+{
+  "disclaimer": "Model-derived risk ranking. For prioritization and human review only. Not a calibrated probability.",
+  "evaluation_note": "Metrics measure agreement with seed-derived weak reference labels, not ground-truth illicit activity classification.",
+  "snapshot": "data/btc_heuristic_scores.parquet",
+  "score_source": "heuristic_fallback",
+  "total_addresses_evaluated": 17660,
+  "risk_tier_distribution": {
+    "counts": {
+      "CRITICAL": 810,
+      "HIGH": 3606,
+      "MEDIUM": 6181,
+      "LOW": 7063
+    },
+    "percentages": {
+      "CRITICAL": 4.59,
+      "HIGH": 20.42,
+      "MEDIUM": 35.0,
+      "LOW": 39.99
+    },
+    "mean_score": 32.79,
+    "median_score": 30.0
+  },
+  "p0_4_7_disclaimer_verified": true,
+  "p0_4_8_leakage": {
+    "check1_eval_not_in_train": "PASSED",
+    "check2_no_seed_identity_feature": "PASSED",
+    "feature_columns": [
+      "tx_count",
+      "total_sent_btc",
+      "total_received_btc",
+      "input_count",
+      "output_count",
+      "is_script_hash",
+      "address_reuse_count",
+      "time_since_last_tx_hrs",
+      "tx_burst_score",
+      "weekday_vs_weekend_ratio",
+      "avg_time_between_tx_hrs",
+      "avg_tx_value_btc",
+      "address_degree",
+      "clustering_coefficient"
+    ],
+    "label_counts": {
+      "high_risk": 0,
+      "eval_reference_val": 0,
+      "eval_reference_test": 0,
+      "unknown": 17660
+    },
+    "generalization_gap_framework": {
+      "seen_seed_recall": "A/B/C cluster members",
+      "held_out_recall_D": "D cluster (val reference, not seen during training)",
+      "held_out_recall_E": "E cluster (test reference, not seen during either)",
+      "gap_definition": "seen_seed_recall - held_out_recall"
+    }
+  },
+  "p0_4_9_ranking": {
+    "status": "N/A",
+    "reason": "No seed-derived reference labels in this snapshot. The 10k snapshot covers ~30 minutes of Bitcoin history; no seed address transacted in that window. Metrics will be available after the 50k snapshot is generated.",
+    "seen_seed": {
+      "n_reference": 0
+    },
+    "val_seed_D": {
+      "n_reference": 0
+    },
+    "test_seed_E": {
+      "n_reference": 0
+    }
+  }
+}

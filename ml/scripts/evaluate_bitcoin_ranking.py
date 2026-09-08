@@ -327,23 +327,29 @@ def main():
     log.info("  output. It must accompany any presentation of Bitcoin risk scores.")
 
     # ── Load inputs ────────────────────────────────────────────────────────────
-    log.info("\nLoading inputs …")
-
-    if not RISK_SCORES_PATH.exists():
-        log.error(
-            f"Risk scores not found: {RISK_SCORES_PATH}\n"
-            "Run train_bitcoin_gcn.py first (requires 50k snapshot with seed labels)."
-        )
-        sys.exit(1)
+    scores_path = RISK_SCORES_PATH
+    score_source = "gcn_raw_ranking"
+    if not scores_path.exists():
+        fallback_path = Path("data/btc_heuristic_scores.parquet")
+        if fallback_path.exists():
+            log.info(f"  Note: {RISK_SCORES_PATH} not found; evaluating fallback scores from {fallback_path}")
+            scores_path = fallback_path
+            score_source = "heuristic_fallback"
+        else:
+            log.error(
+                f"Risk scores not found: {RISK_SCORES_PATH} or {fallback_path}\n"
+                "Run train_bitcoin_gcn.py or heuristic_scorer.py first."
+            )
+            sys.exit(1)
 
     if not WEAK_LABELS_PATH.exists():
         log.error(f"Weak labels not found: {WEAK_LABELS_PATH}")
         sys.exit(1)
 
-    risk_df   = pd.read_parquet(RISK_SCORES_PATH)
+    risk_df   = pd.read_parquet(scores_path)
     labels_df = pd.read_parquet(WEAK_LABELS_PATH)
 
-    log.info(f"  Risk scores : {len(risk_df):,} addresses")
+    log.info(f"  Risk scores : {len(risk_df):,} addresses (source={score_source})")
     log.info(f"  Weak labels : {len(labels_df):,} addresses")
 
     # ── P0.4.8: Leakage checks ─────────────────────────────────────────────────
@@ -352,6 +358,17 @@ def main():
     # ── P0.4.9: Ranking metrics ────────────────────────────────────────────────
     ranking_results = run_ranking_evaluation(risk_df, labels_df)
 
+    # ── Distribution statistics ────────────────────────────────────────────────
+    score_col = "risk_score"
+    if "risk_label" in risk_df.columns:
+        label_counts = risk_df["risk_label"].value_counts().to_dict()
+    else:
+        from backend.constants import score_to_label
+        label_counts = risk_df[score_col].apply(score_to_label).value_counts().to_dict()
+
+    tier_counts = {tier: int(label_counts.get(tier, 0)) for tier in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]}
+    tier_percentages = {k: round(v / len(risk_df) * 100, 2) for k, v in tier_counts.items()}
+
     # ── Assemble report ────────────────────────────────────────────────────────
     report = {
         "disclaimer": RISK_DISCLAIMER,
@@ -359,7 +376,15 @@ def main():
             "Metrics measure agreement with seed-derived weak reference labels, "
             "not ground-truth illicit activity classification."
         ),
-        "snapshot": str(RISK_SCORES_PATH),
+        "snapshot": str(scores_path),
+        "score_source": score_source,
+        "total_addresses_evaluated": len(risk_df),
+        "risk_tier_distribution": {
+            "counts": tier_counts,
+            "percentages": tier_percentages,
+            "mean_score": round(float(risk_df[score_col].mean()), 2),
+            "median_score": round(float(risk_df[score_col].median()), 2),
+        },
         "p0_4_7_disclaimer_verified": True,
         "p0_4_8_leakage": leakage_results,
         "p0_4_9_ranking": ranking_results,
