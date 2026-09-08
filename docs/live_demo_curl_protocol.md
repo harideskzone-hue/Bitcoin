@@ -105,28 +105,28 @@ if p2p:
 ```bash
 # Must return HTTP 422 (Unprocessable Entity)
 curl -s -w "\nHTTP Status: %{http_code}\n" \
-  "http://localhost:8000/api/v1/wallets/risk-list?min_risk=999"
+  "http://localhost:8000/api/v1/alerts?min_risk=999"
 ```
 
 ```bash
 # View structured validation error response
-curl -s "http://localhost:8000/api/v1/wallets/risk-list?min_risk=999" | python3 -m json.tool
+curl -s "http://localhost:8000/api/v1/alerts?min_risk=999" | python3 -m json.tool
 ```
 
 ---
 
-## Test 5 — Dynamic Risk List Query
+## Test 5 — Dynamic Alert Feed Query
 
 **What it proves**: Dynamic filtering and ranked retrieval across snapshot data.
 
 ```bash
 # Query top 5 high-risk addresses (risk >= 70)
-curl -s "http://localhost:8000/api/v1/wallets/risk-list?min_risk=70&limit=5" \
+curl -s "http://localhost:8000/api/v1/alerts?min_risk=70&limit=5" \
   | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 print(f'Total Qualified Addresses: {d[\"total\"]}')
-for idx, a in enumerate(d['addresses'], 1):
+for idx, a in enumerate(d['alerts'], 1):
     print(f' {idx}. {a[\"address\"]} | Score: {a[\"risk_score\"]} | Tier: {a[\"risk_label\"]}')
 "
 ```
